@@ -13,6 +13,7 @@ import { useReceivedRequests } from "../hooks/useFriends";
 import { removeTokens, getUser } from "../utils/auth";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
+import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
@@ -54,6 +55,7 @@ export const Navigation: React.FC = () => {
       label: "Friends",
       badge: requests?.count && requests.count > 0 ? requests.count : undefined,
     },
+    { path: "/chat", icon: ChatBubbleLeftRightIcon, label: "Messages" },
     { path: "/profile", icon: UserIcon, label: "Profile" },
   ];
 
@@ -81,7 +83,10 @@ export const Navigation: React.FC = () => {
           {/* Navigation Links */}
           <div className="flex items-center space-x-2">
             {navItems.map((item) => {
-              const isActive = location.pathname === item.path;
+              const isActive =
+                location.pathname === item.path ||
+                (item.path === "/chat" &&
+                  location.pathname.startsWith("/chat"));
               const Icon = item.icon;
 
               return (

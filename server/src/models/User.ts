@@ -26,6 +26,12 @@ const UserSchema = new Schema<IUser>(
       type: String,
       default: "",
     },
+    blockedUsers: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     headline: {
       type: String,
       default: "",

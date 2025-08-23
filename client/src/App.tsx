@@ -12,6 +12,7 @@ import { ConnectLocationPage } from "./pages/ConnectLocationPage";
 import { FriendsPage } from "./pages/FriendsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
+import { ChatPage } from "./pages/ChatPage";
 
 function App() {
   return (
@@ -47,6 +48,8 @@ function App() {
         <Route path="connect/nearby" element={<ConnectNearbyPageRadar />} />
         <Route path="connect/:location" element={<ConnectLocationPage />} />
         <Route path="friends" element={<FriendsPage />} />
+        <Route path="chat" element={<ChatPage />} />
+        <Route path="chat/:chatId" element={<ChatPage />} />
       </Route>
 
       {/* Catch all */}

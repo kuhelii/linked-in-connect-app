@@ -8,17 +8,25 @@ import passport from "./config/passport";
 import authRoutes from "./routes/auth";
 import connectRoutes from "./routes/connect";
 import profileRoutes from "./routes/profile";
-import friendsRoutes from "./routes/friends"; // Added friends routes import
-// implement logger for incoming requests
+import friendsRoutes from "./routes/friends";
+import chatRoutes from "./routes/chat";
+// import notificationRoutes from "./routes/notifications";
+
+import { initializeSocket } from "./config/socket";
 import morgan from "morgan";
+import { createServer } from "http";
+
 // Load environment variables
 dotenv.config();
 
 const app = express();
+const server = createServer(app);
 const PORT = process.env.PORT || 5000;
 
 // Connect to database
 connectDB();
+
+const io = initializeSocket(server);
 
 // Security middleware
 app.use(helmet());
@@ -50,7 +58,9 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRoutes);
 app.use("/api/connect", connectRoutes);
 app.use("/api/profile", profileRoutes);
-app.use("/api/friends", friendsRoutes); // Added friends routes
+app.use("/api/friends", friendsRoutes);
+app.use("/api/chat", chatRoutes);
+// app.use("/api/notifications", notificationRoutes);
 
 // Health check
 app.get("/health", (req, res) => {
@@ -75,6 +85,6 @@ app.use("*", (req, res) => {
   res.status(404).json({ error: "Route not found" });
 });
 
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });

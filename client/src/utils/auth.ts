@@ -29,3 +29,18 @@ export const setUser = (user: any): void => {
 export const isAuthenticated = (): boolean => {
   return !!getToken();
 };
+
+export const getCurrentUser = (): {
+  userId: string;
+  name: string;
+  email: string;
+} | null => {
+  const user = getUser();
+  if (!user) return null;
+
+  return {
+    userId: user._id || user.id,
+    name: user.name,
+    email: user.email,
+  };
+};
