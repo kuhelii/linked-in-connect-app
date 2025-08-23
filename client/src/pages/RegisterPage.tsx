@@ -8,11 +8,6 @@ import toast from "react-hot-toast";
 import api from "../services/api";
 import { setTokens, setUser } from "../utils/auth";
 import { Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
-import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
-import { Label } from "../components/ui/label";
-import { Card, CardContent } from "../components/ui/card";
-import { Separator } from "../components/ui/separator";
 
 interface RegisterForm {
   name: string;
@@ -37,6 +32,7 @@ export const RegisterPage: React.FC = () => {
 
   const onSubmit = async (data: RegisterForm) => {
     setIsLoading(true);
+    console.log(data);
     try {
       const response = await api.post("/auth/register", {
         name: data.name,
@@ -80,14 +76,13 @@ export const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        <Card className="shadow-xl border-0 bg-card/50 backdrop-blur">
-          <CardContent className="pt-6 space-y-6">
+        <div className="shadow-xl bg-card/50 backdrop-blur rounded-lg border-border border-border">
+          <div className="pt-6 space-y-6 p-6">
             {/* OAuth Buttons */}
             <div className="space-y-3">
-              <Button
+              <button
                 onClick={() => handleOAuthLogin("linkedin")}
-                className="w-full bg-[#0077b5] hover:bg-[#005885] text-white h-12"
-                size="lg"
+                className="w-full bg-[#0077b5] hover:bg-[#005885] text-white h-12 px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center"
               >
                 <svg
                   className="w-5 h-5 mr-3"
@@ -97,13 +92,11 @@ export const RegisterPage: React.FC = () => {
                   <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
                 </svg>
                 Continue with LinkedIn
-              </Button>
+              </button>
 
-              <Button
+              <button
                 onClick={() => handleOAuthLogin("google")}
-                variant="outline"
-                className="w-full h-12 bg-card hover:bg-muted"
-                size="lg"
+                className="w-full h-12 bg-card hover:bg-muted px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center border-border border-border"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path
@@ -124,12 +117,12 @@ export const RegisterPage: React.FC = () => {
                   />
                 </svg>
                 Continue with Google
-              </Button>
+              </button>
             </div>
 
             <div className="relative">
               <div className="absolute inset-0 flex items-center">
-                <Separator className="w-full" />
+                <div className="w-full h-px bg-border" />
               </div>
               <div className="relative flex justify-center text-xs uppercase">
                 <span className="bg-card px-2 text-muted-foreground">
@@ -141,12 +134,13 @@ export const RegisterPage: React.FC = () => {
             {/* Register Form */}
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="name" className="text-sm font-medium">
+                <label htmlFor="name" className="text-sm font-medium">
                   Full name
-                </Label>
+                </label>
                 <div className="relative">
                   <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
+                  <input
+                    id="name"
                     {...register("name", {
                       required: "Name is required",
                       minLength: {
@@ -156,7 +150,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type="text"
                     placeholder="Enter your full name"
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
                 {errors.name && (
@@ -167,12 +161,13 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-medium">
+                <label htmlFor="email" className="text-sm font-medium">
                   Email address
-                </Label>
+                </label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
+                  <input
+                    id="email"
                     {...register("email", {
                       required: "Email is required",
                       pattern: {
@@ -182,7 +177,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type="email"
                     placeholder="Enter your email"
-                    className="pl-10 h-12"
+                    className="pl-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
                 {errors.email && (
@@ -193,12 +188,13 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium">
+                <label htmlFor="password" className="text-sm font-medium">
                   Password
-                </Label>
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
+                  <input
+                    id="password"
                     {...register("password", {
                       required: "Password is required",
                       minLength: {
@@ -208,21 +204,22 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
-                    className="pl-10 pr-10 h-12"
+                    className="pl-10 pr-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowPassword(!showPassword);
+                    }}
                   >
                     {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4" />
                     )}
-                  </Button>
+                  </button>
                 </div>
                 {errors.password && (
                   <p className="text-sm text-destructive">
@@ -232,15 +229,16 @@ export const RegisterPage: React.FC = () => {
               </div>
 
               <div className="space-y-2">
-                <Label
+                <label
                   htmlFor="confirmPassword"
                   className="text-sm font-medium"
                 >
                   Confirm password
-                </Label>
+                </label>
                 <div className="relative">
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
+                  <input
+                    id="confirmPassword"
                     {...register("confirmPassword", {
                       required: "Please confirm your password",
                       validate: (value) =>
@@ -248,21 +246,22 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
-                    className="pl-10 pr-10 h-12"
+                    className="pl-10 pr-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
-                  <Button
+                  <button
                     type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent text-muted-foreground hover:text-foreground transition-colors"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setShowConfirmPassword(!showConfirmPassword);
+                    }}
                   >
                     {showConfirmPassword ? (
-                      <EyeOff className="h-4 w-4 text-muted-foreground" />
+                      <EyeOff className="h-4 w-4" />
                     ) : (
-                      <Eye className="h-4 w-4 text-muted-foreground" />
+                      <Eye className="h-4 w-4" />
                     )}
-                  </Button>
+                  </button>
                 </div>
                 {errors.confirmPassword && (
                   <p className="text-sm text-destructive">
@@ -271,11 +270,10 @@ export const RegisterPage: React.FC = () => {
                 )}
               </div>
 
-              <Button
+              <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full h-12"
-                size="lg"
+                className="w-full h-12 inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 bg-primary text-primary-foreground hover:bg-primary/90"
               >
                 {isLoading ? (
                   <>
@@ -285,10 +283,10 @@ export const RegisterPage: React.FC = () => {
                 ) : (
                   "Create account"
                 )}
-              </Button>
+              </button>
             </form>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         <div className="text-center mt-6">
           <p className="text-muted-foreground">
