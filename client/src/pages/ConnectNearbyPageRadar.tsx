@@ -1,8 +1,3 @@
-// ConnectNearbyPageRadar.tsx
-// Complete redesign: theme-neutral, resilient clustering, pfps on radar, framer-motion,
-// robust edge cases: all users in one spot, users at your exact spot, missing bearings/distances.
-// Drop-in ready.
-
 import React, { useEffect, useMemo, useState, useRef } from "react";
 import { useQuery } from "react-query";
 import { toast } from "react-hot-toast";
@@ -16,25 +11,21 @@ import type { NearbyUser } from "../types";
 type LatLng = { lat: number; lng: number };
 
 interface RadarDot {
-  // position in svg px
   x: number;
   y: number;
-  // if cluster is present, the dot.user is the seed, cluster contains others including seed
   user: NearbyUser;
   cluster?: NearbyUser[];
-  // safe flags
   isAtCenter?: boolean;
 }
 
-const RADAR_SIZE = 360; // svg viewBox width/height
+const RADAR_SIZE = 360;
 const RAD = RADAR_SIZE / 2;
-const CIRCLE_RADII = [RAD * 0.33, RAD * 0.66, RAD]; // three rings
-const CLUSTER_THRESHOLD_PX = 44; // how close to merge
-const CENTER_RING_RADIUS = 38; // where to place users at exact user location
+const CIRCLE_RADII = [RAD * 0.33, RAD * 0.66, RAD];
+const CLUSTER_THRESHOLD_PX = 44;
+const CENTER_RING_RADIUS = 38;
 const MAX_AVATAR = 34;
 const MIN_AVATAR = 18;
 
-// deterministic small offset for users with identical polar coordinates
 function seededHash(str: string) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) {
@@ -43,15 +34,15 @@ function seededHash(str: string) {
   }
   return Math.abs(h >>> 0);
 }
+
 function jitterForUser(u: NearbyUser, scale = 6) {
   const h = seededHash(u._id || u.name || "");
   const angle = (h % 360) * (Math.PI / 180);
-  const r = (h % scale) + 2; // 2..(scale+1)
+  const r = (h % scale) + 2;
   return { dx: Math.cos(angle) * r, dy: Math.sin(angle) * r };
 }
 
 function polarToCartesian(distanceNorm: number, bearingDeg: number) {
-  // bearing 0 is North, so subtract 90 to point up
   const angleRad = (bearingDeg - 90) * (Math.PI / 180);
   const r = distanceNorm * RAD;
   return {
@@ -82,7 +73,8 @@ function formatDistance(distanceKm?: number) {
   if (distanceKm == null) return "distance unknown";
   if (distanceKm < 0.001) return "right here";
   if (distanceKm < 1) return `${Math.round(distanceKm * 1000)} m away`;
-  return `${distanceKm.toFixed(1)} km away`;
+  if (distanceKm < 1000) return `${distanceKm.toFixed(1)} km away`;
+  return `${(distanceKm / 1000).toFixed(1)}k km away`;
 }
 
 function directionText(bearing?: number) {
@@ -102,9 +94,8 @@ export const ConnectNearbyPageRadar: React.FC = () => {
   );
   const [showOnlyWithBearing, setShowOnlyWithBearing] = useState(false);
 
-  // Ref for cluster modal content
   const clusterModalRef = useRef<HTMLDivElement>(null);
-  // Outside click handler for cluster modal
+
   useEffect(() => {
     if (!selectedCluster) return;
     function handleClick(event: MouseEvent | TouchEvent) {
@@ -154,53 +145,36 @@ export const ConnectNearbyPageRadar: React.FC = () => {
     getCurrentLocation();
   }, []);
 
-  // Build radar dots with robust rules:
-  // 1) If distance undefined and bearing undefined, skip radar but keep in list
-  // 2) If distance ~0 or user is at your location, park on a small center ring with jitter
-  // 3) If many users occupy exactly same polar coordinate, apply slight jitter
-  // 4) Cluster nearby dots by threshold
   const { radarDots, listableUsers, totalPlotted, totalUnplotted } =
     useMemo(() => {
       const all = nearbyUsers?.users ?? [];
-      const listable = [...all]; // shown on right panel regardless of plotting
-      // optional filter to reduce noise on radar if user wants only those with bearings
+      const listable = [...all];
       const candidates = showOnlyWithBearing
         ? all.filter((u) => safeBearingDeg(u.bearing) != null)
         : all;
 
-      // map to dots
       const rawDots: Omit<RadarDot, "cluster">[] = [];
       for (const user of candidates) {
         const dKm = safeDistanceKm(user.distance);
         const bDeg = safeBearingDeg(user.bearing);
+        if (dKm == null && bDeg == null) continue;
 
-        if (dKm == null && bDeg == null) continue; // cannot plot
-
-        // normalize distance to [0..1]
         let distanceNorm = 0;
         let isAtCenter = false;
 
-        if (dKm == null) {
-          // unknown distance but known bearing: place at outer ring with slight inwards bias
-          distanceNorm = 0.95;
-        } else if (dKm < 0.01) {
-          // essentially same place
+        if (dKm == null) distanceNorm = 0.95;
+        else if (dKm < 0.01) {
           isAtCenter = true;
-          // place on small center ring with deterministic jitter around center
           const { dx, dy } = jitterForUser(user, 10);
           const angle = Math.atan2(dy, dx);
           const x = RAD + Math.cos(angle) * CENTER_RING_RADIUS;
           const y = RAD + Math.sin(angle) * CENTER_RING_RADIUS;
-          rawDots.push({ user, x, y, isAtCenter: true });
+          rawDots.push({ user, x, y, isAtCenter });
           continue;
-        } else {
-          distanceNorm = Math.min(dKm / Math.max(radius, 0.0001), 1);
-        }
+        } else distanceNorm = Math.min(dKm / Math.max(radius, 0.0001), 1);
 
-        const bearing = bDeg ?? 0; // fallback if still null
+        const bearing = bDeg ?? 0;
         let { x, y } = polarToCartesian(distanceNorm, bearing);
-
-        // jitter to avoid perfect overlap for identical polar
         const { dx, dy } = jitterForUser(user, 8);
         x += dx;
         y += dy;
@@ -208,7 +182,6 @@ export const ConnectNearbyPageRadar: React.FC = () => {
         rawDots.push({ user, x, y, isAtCenter });
       }
 
-      // clustering
       const clustered: RadarDot[] = [];
       for (const dot of rawDots) {
         const existing = clustered.find(
@@ -222,18 +195,14 @@ export const ConnectNearbyPageRadar: React.FC = () => {
         }
       }
 
-      // avatar sizing based on plot count
-      const n = clustered.length;
       let avatar = MAX_AVATAR;
+      const n = clustered.length;
       if (n > 120) avatar = 18;
       else if (n > 80) avatar = 20;
       else if (n > 50) avatar = 24;
       else if (n > 30) avatar = 28;
-      // avatar size will be applied via width/height attributes below using computed value
 
-      // annotate avatar size on each node via type hack
       clustered.forEach((c: any) => (c.__avatar = avatar));
-
       const totalUnplottedCount = all.length - rawDots.length;
       return {
         radarDots: clustered,
@@ -245,7 +214,6 @@ export const ConnectNearbyPageRadar: React.FC = () => {
 
   const anyUsers = (nearbyUsers?.users?.length ?? 0) > 0;
 
-  // UI states
   if (!location && !isGettingLocation) {
     return (
       <div className="space-y-8">
@@ -253,7 +221,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
           <h1 className="text-4xl font-bold text-neutral-900">
             Find Nearby Users
           </h1>
-          <p className="text-neutral-600  max-w-2xl mx-auto">
+          <p className="text-neutral-600 max-w-2xl mx-auto">
             Give location access to plot users around you on a live radar.
           </p>
         </div>
@@ -263,7 +231,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
           </div>
           <button
             onClick={getCurrentLocation}
-            className="bg-neutral-900 hover:bg-neutral-800 -white px-6 py-3 rounded-lg font-medium"
+            className="bg-neutral-900 hover:bg-neutral-800 text-white px-6 py-3 rounded-lg font-medium"
           >
             Enable Location
           </button>
@@ -284,7 +252,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
           </h1>
         </div>
         <div className="bg-white rounded-xl shadow-lg p-8 text-center space-y-4">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900  mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-neutral-900 mx-auto"></div>
           <p className="text-neutral-600 ">Getting your location</p>
         </div>
       </div>
@@ -304,7 +272,6 @@ export const ConnectNearbyPageRadar: React.FC = () => {
       </div>
 
       {/* Controls */}
-
       <div className="bg-white rounded-xl shadow-lg p-6">
         <div className="flex flex-col md:flex-row items-center gap-4 justify-between">
           <div className="flex items-center gap-4 w-full md:w-auto">
@@ -314,7 +281,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
             <input
               type="range"
               min={1}
-              max={50}
+              max={1000}
               value={radius}
               onChange={(e) => setRadius(parseInt(e.target.value))}
               className="w-56 h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer"
@@ -325,10 +292,10 @@ export const ConnectNearbyPageRadar: React.FC = () => {
           </div>
 
           <div className="flex items-center gap-3">
-            <label className="inline-flex items-center gap-2 text-sm text-neutral-700  cursor-pointer select-none">
+            <label className="inline-flex items-center gap-2 text-sm text-neutral-700 cursor-pointer select-none">
               <input
                 type="checkbox"
-                className="accent-neutral-900 "
+                className="accent-neutral-900"
                 checked={showOnlyWithBearing}
                 onChange={(e) => setShowOnlyWithBearing(e.target.checked)}
               />
@@ -338,7 +305,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
             <button
               onClick={() => refetch()}
               disabled={isLoading || isFetching}
-              className="flex items-center gap-2 bg-neutral-100 hover:bg-neutral-200  text-neutral-800  px-4 py-2 rounded-lg font-medium disabled:opacity-60"
+              className="flex items-center gap-2 bg-neutral-100 hover:bg-neutral-200 text-neutral-800 px-4 py-2 rounded-lg font-medium disabled:opacity-60"
             >
               <RefreshCcw
                 className={`w-4 h-4 ${
@@ -350,7 +317,6 @@ export const ConnectNearbyPageRadar: React.FC = () => {
           </div>
         </div>
 
-        {/* Info line for edge cases */}
         <div className="mt-3 text-xs text-neutral-500 ">
           {totalUnplotted > 0
             ? `${totalUnplotted} user(s) have unknown distance and direction. They are listed on the right panel.`
