@@ -91,7 +91,7 @@ if (process.env.LINKEDIN_CLIENT_ID && process.env.LINKEDIN_CLIENT_SECRET) {
         clientID: process.env.LINKEDIN_CLIENT_ID,
         clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
         callbackURL: "/api/auth/linkedin/callback",
-        scope: ["r_emailaddress", "r_liteprofile"],
+        scope: ["openid", "profile", "email"],
       },
       async (accessToken, refreshToken, profile, done) => {
         try {

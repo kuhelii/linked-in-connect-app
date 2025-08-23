@@ -58,6 +58,10 @@ router.get(
 // Find nearby users
 router.get("/nearby", optionalAuth, async (req: any, res: any) => {
   try {
+    console.log("Nearby users search initiated");
+    console.log("Request query:", req.query);
+    console.log("Authenticated user:", req.user ? req.user._id : "None");
+
     const {
       lat,
       lng,
@@ -68,7 +72,10 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
       radius?: string;
     };
 
+    console.log("Parsed query params:", { lat, lng, radius });
+
     if (!lat || !lng) {
+      console.log("Missing coordinates - lat:", lat, "lng:", lng);
       return res
         .status(400)
         .json({ error: "Latitude and longitude are required" });
@@ -78,25 +85,48 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
     const longitude = Number.parseFloat(lng);
     const radiusKm = Number.parseFloat(radius);
 
+    console.log("Converted coordinates:", { latitude, longitude, radiusKm });
+
     if (isNaN(latitude) || isNaN(longitude) || isNaN(radiusKm)) {
+      console.log("Invalid coordinates or radius");
       return res.status(400).json({ error: "Invalid coordinates or radius" });
     }
 
-    // MongoDB geospatial query to find nearby users
+    // Update current user's location if authenticated
+    if (req.user) {
+      console.log("Updating authenticated user's location");
+      try {
+        await User.findByIdAndUpdate(req.user._id, {
+          coords: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          },
+          location: `${latitude}, ${longitude}`, // You might want to reverse geocode this
+        });
+        console.log("User location updated successfully");
+      } catch (updateError) {
+        console.error("Failed to update user location:", updateError);
+      }
+    }
+
+    console.log("Starting MongoDB geospatial query");
+
+    // Find nearby users using geospatial query
+    console.log("Executing geospatial query with params:", {
+      longitude,
+      latitude,
+      radiusKm,
+      maxDistanceMeters: radiusKm * 1000,
+    });
+
     const nearbyUsers = await User.aggregate([
       {
         $geoNear: {
-          near: {
-            type: "Point",
-            coordinates: [longitude, latitude], // MongoDB uses [lng, lat]
-          },
+          near: { type: "Point", coordinates: [longitude, latitude] },
           distanceField: "distance",
-          maxDistance: radiusKm * 1000, // Convert km to meters
+          maxDistance: radiusKm * 1000,
           spherical: true,
-          query: {
-            "coords.coordinates": { $ne: [0, 0] }, // Exclude users without coordinates
-            ...(req.user ? { _id: { $ne: (req.user as any)._id } } : {}), // Exclude current user if authenticated
-          },
+          query: { "coords.coordinates": { $ne: [0, 0] } },
         },
       },
       {
@@ -107,13 +137,14 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
           profileImage: 1,
           location: 1,
           isAnonymous: 1,
-          distance: { $round: ["$distance", 0] }, // Round distance to nearest meter
+          distance: { $round: ["$distance", 0] },
         },
       },
-      {
-        $limit: 50, // Limit results
-      },
+      { $limit: 50 },
     ]);
+
+    console.log("MongoDB query completed. Found", nearbyUsers.length, "users");
+    console.log("Raw nearby users data:", nearbyUsers);
 
     // Transform results to hide information for anonymous users
     const transformedUsers: NearbyUser[] = nearbyUsers.map((user) => ({
@@ -126,7 +157,9 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
       isAnonymous: user.isAnonymous,
     }));
 
-    res.json({
+    console.log("Transformed users data:", transformedUsers);
+
+    const responseData = {
       success: true,
       data: {
         users: transformedUsers,
@@ -134,9 +167,17 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
         searchRadius: radiusKm,
         searchCenter: { lat: latitude, lng: longitude },
       },
-    });
+    };
+
+    console.log("Sending response:", responseData);
+
+    res.json(responseData);
   } catch (error) {
     console.error("Nearby users search error:", error);
+    console.error(
+      "Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    );
     res.status(500).json({ error: "Failed to find nearby users" });
   }
 });

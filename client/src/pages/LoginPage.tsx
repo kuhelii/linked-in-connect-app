@@ -34,7 +34,11 @@ export const LoginPage: React.FC = () => {
       toast.success("Welcome back!");
       navigate("/");
     } catch (error: any) {
-      toast.error(error.response?.data?.error || "Login failed");
+      // stop propagation
+      error.preventDefault();
+      // Prevent page reload
+      console.error("Login error:", error);
+      toast.error(error.response?.data?.error || "Invalid email or password");
     } finally {
       setIsLoading(false);
     }
@@ -120,7 +124,14 @@ export const LoginPage: React.FC = () => {
             </div>
 
             {/* Login Form */}
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleSubmit(onSubmit)(e);
+              }}
+              className="space-y-4"
+              noValidate
+            >
               <div className="space-y-2">
                 <label htmlFor="email" className="text-sm font-medium">
                   Email address
