@@ -52,7 +52,7 @@ export const Navigation: React.FC = () => {
       path: "/friends",
       icon: UsersIcon,
       label: "Friends",
-      badge: requests?.count || 0,
+      badge: requests?.count && requests.count > 0 ? requests.count : undefined,
     },
     { path: "/profile", icon: UserIcon, label: "Profile" },
   ];
@@ -96,7 +96,7 @@ export const Navigation: React.FC = () => {
                 >
                   <Icon className="w-4 h-4" />
                   <span className="hidden md:block">{item.label}</span>
-                  {item.badge && item.badge > 0 && (
+                  {typeof item.badge === "number" && item.badge > 0 && (
                     <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center p-0 text-xs rounded-full bg-destructive text-destructive-foreground">
                       {item.badge > 9 ? "9+" : item.badge}
                     </span>
