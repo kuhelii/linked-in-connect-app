@@ -1,6 +1,4 @@
-"use client"
-
-import type React from "react"
+import type React from "react";
 import {
   useFriendshipStatus,
   useSendFriendRequest,
@@ -8,94 +6,158 @@ import {
   useRejectFriendRequest,
   useCancelFriendRequest,
   useRemoveFriend,
-} from "../hooks/useFriends"
-import { UserPlusIcon, UserMinusIcon, CheckIcon, XMarkIcon, ClockIcon } from "@heroicons/react/24/outline"
+} from "../hooks/useFriends";
+import { UserPlus, UserMinus, Check, X, Clock, Loader2 } from "lucide-react";
+import { Button } from "./ui/button";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "./ui/alert-dialog";
 
 interface FriendButtonProps {
-  userId: string
-  userName: string
-  className?: string
+  userId: string;
+  userName: string;
+  className?: string;
 }
 
-export const FriendButton: React.FC<FriendButtonProps> = ({ userId, userName, className = "" }) => {
-  const { data: status, isLoading } = useFriendshipStatus(userId)
-  const sendRequest = useSendFriendRequest()
-  const acceptRequest = useAcceptFriendRequest()
-  const rejectRequest = useRejectFriendRequest()
-  const cancelRequest = useCancelFriendRequest()
-  const removeFriend = useRemoveFriend()
+export const FriendButton: React.FC<FriendButtonProps> = ({
+  userId,
+  userName,
+  className = "",
+}) => {
+  const { data: status, isLoading } = useFriendshipStatus(userId);
+  const sendRequest = useSendFriendRequest();
+  const acceptRequest = useAcceptFriendRequest();
+  const rejectRequest = useRejectFriendRequest();
+  const cancelRequest = useCancelFriendRequest();
+  const removeFriend = useRemoveFriend();
 
   if (isLoading) {
     return (
-      <button disabled className={`btn-secondary opacity-50 ${className}`}>
-        <ClockIcon className="w-4 h-4 mr-2" />
+      <Button disabled variant="outline" className={className}>
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
         Loading...
-      </button>
-    )
+      </Button>
+    );
   }
 
-  if (!status) return null
+  if (!status) return null;
 
   // Already friends
   if (status.isFriend) {
     return (
-      <button
-        onClick={() => removeFriend.mutate(userId)}
-        disabled={removeFriend.isLoading}
-        className={`btn-secondary hover:bg-red-100 hover:text-red-700 ${className}`}
-      >
-        <UserMinusIcon className="w-4 h-4 mr-2" />
-        {removeFriend.isLoading ? "Removing..." : "Remove Friend"}
-      </button>
-    )
+      <AlertDialog>
+        <AlertDialogTrigger asChild>
+          <Button
+            variant="outline"
+            className={`hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20 ${className}`}
+          >
+            <UserMinus className="w-4 h-4 mr-2" />
+            Remove Friend
+          </Button>
+        </AlertDialogTrigger>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Remove Friend</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to remove <strong>{userName}</strong> from
+              your friends list? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => removeFriend.mutate(userId)}
+              disabled={removeFriend.isLoading}
+              className="bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              {removeFriend.isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Removing...
+                </>
+              ) : (
+                "Remove Friend"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    );
   }
 
   // Has received request from this user
   if (status.hasReceivedRequest && status.requestId) {
     return (
       <div className={`flex gap-2 ${className}`}>
-        <button
+        <Button
           onClick={() => acceptRequest.mutate(status.requestId!)}
           disabled={acceptRequest.isLoading}
-          className="btn-primary flex-1"
+          className="flex-1 bg-success hover:bg-success/90 text-success-foreground"
         >
-          <CheckIcon className="w-4 h-4 mr-2" />
+          {acceptRequest.isLoading ? (
+            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+          ) : (
+            <Check className="w-4 h-4 mr-2" />
+          )}
           {acceptRequest.isLoading ? "Accepting..." : "Accept"}
-        </button>
-        <button
+        </Button>
+        <Button
           onClick={() => rejectRequest.mutate(status.requestId!)}
           disabled={rejectRequest.isLoading}
-          className="btn-secondary"
+          variant="outline"
+          size="icon"
+          className="hover:bg-destructive/10 hover:text-destructive hover:border-destructive/20"
         >
-          <XMarkIcon className="w-4 h-4" />
-        </button>
+          {rejectRequest.isLoading ? (
+            <Loader2 className="w-4 h-4 animate-spin" />
+          ) : (
+            <X className="w-4 h-4" />
+          )}
+        </Button>
       </div>
-    )
+    );
   }
 
   // Has sent request to this user
   if (status.hasSentRequest && status.requestId) {
     return (
-      <button
+      <Button
         onClick={() => cancelRequest.mutate(status.requestId!)}
         disabled={cancelRequest.isLoading}
-        className={`btn-secondary ${className}`}
+        variant="outline"
+        className={className}
       >
-        <ClockIcon className="w-4 h-4 mr-2" />
+        {cancelRequest.isLoading ? (
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+        ) : (
+          <Clock className="w-4 h-4 mr-2" />
+        )}
         {cancelRequest.isLoading ? "Cancelling..." : "Request Sent"}
-      </button>
-    )
+      </Button>
+    );
   }
 
   // Can send friend request
   return (
-    <button
+    <Button
       onClick={() => sendRequest.mutate(userId)}
       disabled={sendRequest.isLoading}
-      className={`btn-primary ${className}`}
+      className={className}
     >
-      <UserPlusIcon className="w-4 h-4 mr-2" />
+      {sendRequest.isLoading ? (
+        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+      ) : (
+        <UserPlus className="w-4 h-4 mr-2" />
+      )}
       {sendRequest.isLoading ? "Sending..." : "Add Friend"}
-    </button>
-  )
-}
+    </Button>
+  );
+};

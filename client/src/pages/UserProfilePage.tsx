@@ -1,14 +1,17 @@
-"use client"
-
-import type React from "react"
-import { useParams } from "react-router-dom"
-import { useQuery } from "react-query"
-import { MapPinIcon, EyeSlashIcon, UsersIcon, CalendarIcon } from "@heroicons/react/24/outline"
-import { profileService } from "../services/profileService"
-import { FriendButton } from "../components/FriendButton"
+import type React from "react";
+import { useParams } from "react-router-dom";
+import { useQuery } from "react-query";
+import {
+  MapPinIcon,
+  EyeSlashIcon,
+  UsersIcon,
+  CalendarIcon,
+} from "@heroicons/react/24/outline";
+import { profileService } from "../services/profileService";
+import { FriendButton } from "../components/FriendButton";
 
 export const UserProfilePage: React.FC = () => {
-  const { id } = useParams<{ id: string }>()
+  const { id } = useParams<{ id: string }>();
 
   const {
     data: profile,
@@ -16,7 +19,7 @@ export const UserProfilePage: React.FC = () => {
     error,
   } = useQuery(["userProfile", id], () => profileService.getProfileById(id!), {
     enabled: !!id,
-  })
+  });
 
   if (isLoading) {
     return (
@@ -32,7 +35,7 @@ export const UserProfilePage: React.FC = () => {
           </div>
         </div>
       </div>
-    )
+    );
   }
 
   if (error || !profile) {
@@ -42,11 +45,15 @@ export const UserProfilePage: React.FC = () => {
           <EyeSlashIcon className="w-8 h-8 text-muted-foreground" />
         </div>
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-2">Profile not found</h3>
-          <p className="text-muted-foreground">This user profile doesn't exist or is not accessible.</p>
+          <h3 className="text-lg font-semibold text-foreground mb-2">
+            Profile not found
+          </h3>
+          <p className="text-muted-foreground">
+            This user profile doesn't exist or is not accessible.
+          </p>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -81,9 +88,13 @@ export const UserProfilePage: React.FC = () => {
             </div>
 
             <div className="flex-1 text-center md:text-left">
-              <h1 className="text-3xl font-bold text-foreground mb-2">{profile.name}</h1>
+              <h1 className="text-3xl font-bold text-foreground mb-2">
+                {profile.name}
+              </h1>
               {profile.headline && !profile.isAnonymous && (
-                <p className="text-lg text-muted-foreground mb-3">{profile.headline}</p>
+                <p className="text-lg text-muted-foreground mb-3">
+                  {profile.headline}
+                </p>
               )}
               {profile.location && !profile.isAnonymous && (
                 <div className="flex items-center justify-center md:justify-start text-muted-foreground mb-4">
@@ -107,7 +118,9 @@ export const UserProfilePage: React.FC = () => {
                 <div className="bg-muted/50 rounded-lg p-4 mb-4">
                   <div className="flex items-center justify-center text-muted-foreground">
                     <EyeSlashIcon className="w-5 h-5 mr-2" />
-                    <span className="text-sm">This user has chosen to remain anonymous</span>
+                    <span className="text-sm">
+                      This user has chosen to remain anonymous
+                    </span>
                   </div>
                 </div>
               )}
@@ -127,7 +140,9 @@ export const UserProfilePage: React.FC = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Professional Info */}
           <div className="card">
-            <h2 className="text-xl font-bold text-foreground mb-4">Professional Information</h2>
+            <h2 className="text-xl font-bold text-foreground mb-4">
+              Professional Information
+            </h2>
             <div className="space-y-3">
               {profile.headline && (
                 <div>
@@ -143,7 +158,9 @@ export const UserProfilePage: React.FC = () => {
               )}
               {profile.linkedinUrl && (
                 <div>
-                  <h3 className="font-medium text-foreground">LinkedIn Profile</h3>
+                  <h3 className="font-medium text-foreground">
+                    LinkedIn Profile
+                  </h3>
                   <a
                     href={profile.linkedinUrl}
                     target="_blank"
@@ -163,7 +180,9 @@ export const UserProfilePage: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Connections</span>
-                <span className="font-semibold text-foreground">{profile.friendsCount}</span>
+                <span className="font-semibold text-foreground">
+                  {profile.friendsCount}
+                </span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-muted-foreground">Member since</span>
@@ -179,5 +198,5 @@ export const UserProfilePage: React.FC = () => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
