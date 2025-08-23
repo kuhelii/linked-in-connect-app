@@ -4,7 +4,14 @@ import { linkedinSearchService } from "../services/linkedinSearch";
 import User from "../models/User";
 import { optionalAuth } from "../middleware/auth";
 import type { NearbyUser } from "../types";
-import { calculateDistance, filterUsersByDistance } from "../utils/distance";
+import {
+  calculateDistance,
+  filterUsersByDistance,
+  calculateBearing,
+  getRelativeTimeString,
+  extractCoordinates,
+} from "../utils/distance";
+import { formatDistanceToNow } from "date-fns";
 
 const router = express.Router();
 
@@ -102,7 +109,8 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
             type: "Point",
             coordinates: [longitude, latitude],
           },
-          location: `${latitude}, ${longitude}`, // You might want to reverse geocode this
+          location: `${latitude}, ${longitude}`,
+          lastLocationUpdate: new Date(),
         });
         console.log("User location updated successfully");
       } catch (updateError) {
@@ -124,6 +132,7 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
         location: 1,
         isAnonymous: 1,
         coords: 1,
+        lastLocationUpdate: 1,
       })
       .lean();
 
@@ -148,15 +157,35 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
     const limitedUsers = nearbyUsersWithDistance.slice(0, 50);
 
     // Transform results to hide information for anonymous users
-    const transformedUsers: NearbyUser[] = limitedUsers.map((user) => ({
-      _id: user._id.toString(),
-      name: user.isAnonymous ? "Anonymous User" : user.name,
-      headline: user.isAnonymous ? "" : user.headline || "",
-      profileImage: user.isAnonymous ? "" : user.profileImage || "",
-      location: user.isAnonymous ? "" : user.location || "",
-      distance: user.distance,
-      isAnonymous: user.isAnonymous,
-    }));
+    const transformedUsers: NearbyUser[] = limitedUsers.map((user) => {
+      // Calculate bearing from current user to this user
+      let bearing: number | undefined;
+      let lastVisit: string | undefined;
+
+      // Extract coordinates for bearing calculation (using existing function name)
+      const coordinates = extractCoordinates(user);
+      if (coordinates) {
+        const [userLon, userLat] = coordinates;
+        bearing = calculateBearing(latitude, longitude, userLat, userLon);
+      }
+
+      // Get last visit information
+      if (user.lastLocationUpdate) {
+        lastVisit = getRelativeTimeString(new Date(user.lastLocationUpdate));
+      }
+
+      return {
+        _id: user._id.toString(),
+        name: user.isAnonymous ? "Anonymous User" : user.name,
+        headline: user.isAnonymous ? "" : user.headline || "",
+        profileImage: user.isAnonymous ? "" : user.profileImage || "",
+        location: user.isAnonymous ? "" : user.location || "",
+        distance: user.distance,
+        bearing,
+        lastVisit,
+        isAnonymous: user.isAnonymous,
+      };
+    });
 
     console.log("Transformed users data:", transformedUsers);
 
@@ -238,6 +267,7 @@ router.get("/users", optionalAuth, async (req: any, res: any) => {
         location: 1,
         isAnonymous: 1,
         coords: 1,
+        lastLocationUpdate: 1,
       })
       .lean();
 
@@ -272,18 +302,26 @@ router.get("/users", optionalAuth, async (req: any, res: any) => {
     const paginatedUsers = filteredUsers.slice(skip, skip + limitNum);
 
     // Transform results
-    const transformedUsers: NearbyUser[] = paginatedUsers.map((user) => ({
-      _id: user._id.toString(),
-      name: user.isAnonymous ? "Anonymous User" : user.name,
-      headline: user.isAnonymous ? "" : user.headline || "",
-      profileImage: user.isAnonymous ? "" : user.profileImage || "",
-      location: user.isAnonymous ? "" : user.location || "",
-      distance:
-        "distance" in user && typeof user.distance === "number"
-          ? user.distance
-          : 0,
-      isAnonymous: user.isAnonymous,
-    }));
+    const transformedUsers: NearbyUser[] = paginatedUsers.map((user) => {
+      const lastVisit = user.lastLocationUpdate
+        ? formatDistanceToNow(new Date(user.lastLocationUpdate), {
+            addSuffix: true,
+          })
+        : null;
+      return {
+        _id: user._id.toString(),
+        name: user.isAnonymous ? "Anonymous User" : user.name,
+        headline: user.isAnonymous ? "" : user.headline || "",
+        profileImage: user.isAnonymous ? "" : user.profileImage || "",
+        location: user.isAnonymous ? "" : user.location || "",
+        distance:
+          "distance" in user && typeof user.distance === "number"
+            ? user.distance
+            : 0,
+        isAnonymous: user.isAnonymous,
+        lastVisit: lastVisit || undefined,
+      };
+    });
 
     const responseData = {
       success: true,

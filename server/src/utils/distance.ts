@@ -1,4 +1,55 @@
 /**
+ * Calculate the bearing (direction) from point A to point B
+ * @param lat1 Latitude of first point in degrees
+ * @param lon1 Longitude of first point in degrees
+ * @param lat2 Latitude of second point in degrees
+ * @param lon2 Longitude of second point in degrees
+ * @returns Bearing in degrees (0-360)
+ */
+export function calculateBearing(
+  lat1: number,
+  lon1: number,
+  lat2: number,
+  lon2: number
+): number {
+  // Convert degrees to radians
+  const lat1Rad = toRadians(lat1);
+  const lat2Rad = toRadians(lat2);
+  const deltaLon = toRadians(lon2 - lon1);
+
+  // Calculate bearing
+  const y = Math.cos(lat2Rad) * Math.sin(deltaLon);
+  const x =
+    Math.cos(lat1Rad) * Math.sin(lat2Rad) -
+    Math.sin(lat1Rad) * Math.cos(lat2Rad) * Math.cos(deltaLon);
+
+  // Convert to degrees and normalize to 0-360
+  let bearing = Math.atan2(y, x) * (180 / Math.PI);
+  bearing = (bearing + 360) % 360;
+
+  return Math.round(bearing * 100) / 100; // Round to 2 decimal places
+}
+
+/**
+ * Get relative time string from timestamp
+ * @param timestamp Date when location was last updated
+ * @returns Human readable time string like "5 mins ago"
+ */
+export function getRelativeTimeString(timestamp: Date): string {
+  const now = new Date();
+  const diffMs = now.getTime() - timestamp.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffMins < 1) return "just now";
+  if (diffMins < 60) return `${diffMins} min${diffMins === 1 ? "" : "s"} ago`;
+  if (diffHours < 24)
+    return `${diffHours} hour${diffHours === 1 ? "" : "s"} ago`;
+  return `${diffDays} day${diffDays === 1 ? "" : "s"} ago`;
+}
+
+/**
  * Calculate the great-circle distance between two points on Earth using the Haversine formula
  * @param lat1 Latitude of first point in degrees
  * @param lon1 Longitude of first point in degrees
@@ -55,7 +106,7 @@ function toRadians(degrees: number): number {
  * @param user User object with coords or location
  * @returns [longitude, latitude] or null if no valid coordinates
  */
-function extractCoordinates(user: any): [number, number] | null {
+export function extractCoordinates(user: any): [number, number] | null {
   // First, try to get coordinates from coords field
   if (
     user.coords &&

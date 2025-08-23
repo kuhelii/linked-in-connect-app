@@ -11,6 +11,7 @@ export interface IUser extends Document {
     type: "Point";
     coordinates: [number, number]; // [longitude, latitude]
   };
+  lastLocationUpdate?: Date;
   friends: string[];
   friendRequests: {
     sent: string[];
@@ -55,5 +56,7 @@ export interface NearbyUser {
   profileImage?: string;
   location?: string;
   distance: number;
+  bearing?: number; // Direction in degrees (0-360)
+  lastVisit?: string; // Human readable time like "5 mins ago"
   isAnonymous: boolean;
 }

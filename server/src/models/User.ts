@@ -1,6 +1,6 @@
-import mongoose, { Schema } from "mongoose"
-import bcrypt from "bcryptjs"
-import type { IUser } from "../types"
+import mongoose, { Schema } from "mongoose";
+import bcrypt from "bcryptjs";
+import type { IUser } from "../types";
 
 const UserSchema = new Schema<IUser>(
   {
@@ -19,7 +19,7 @@ const UserSchema = new Schema<IUser>(
     password: {
       type: String,
       required: function (this: IUser) {
-        return this.provider === "local"
+        return this.provider === "local";
       },
     },
     profileImage: {
@@ -44,6 +44,10 @@ const UserSchema = new Schema<IUser>(
         type: [Number], // [longitude, latitude]
         default: [0, 0],
       },
+    },
+    lastLocationUpdate: {
+      type: Date,
+      default: null,
     },
     friends: [
       {
@@ -89,29 +93,31 @@ const UserSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 // Create geospatial index
-UserSchema.index({ coords: "2dsphere" })
+UserSchema.index({ coords: "2dsphere" });
 
 // Hash password before saving
 UserSchema.pre("save", async function (next) {
-  if (!this.isModified("password") || !this.password) return next()
+  if (!this.isModified("password") || !this.password) return next();
 
   try {
-    const salt = await bcrypt.genSalt(12)
-    this.password = await bcrypt.hash(this.password, salt)
-    next()
+    const salt = await bcrypt.genSalt(12);
+    this.password = await bcrypt.hash(this.password, salt);
+    next();
   } catch (error) {
-    next(error as Error)
+    next(error as Error);
   }
-})
+});
 
 // Compare password method
-UserSchema.methods.comparePassword = async function (candidatePassword: string): Promise<boolean> {
-  if (!this.password) return false
-  return bcrypt.compare(candidatePassword, this.password)
-}
+UserSchema.methods.comparePassword = async function (
+  candidatePassword: string
+): Promise<boolean> {
+  if (!this.password) return false;
+  return bcrypt.compare(candidatePassword, this.password);
+};
 
-export default mongoose.model<IUser>("User", UserSchema)
+export default mongoose.model<IUser>("User", UserSchema);

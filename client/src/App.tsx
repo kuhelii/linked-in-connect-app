@@ -7,7 +7,7 @@ import { HomePage } from "./pages/HomePage";
 import { ProfilePage } from "./pages/ProfilePage";
 import { UserProfilePage } from "./pages/UserProfilePage";
 import { ConnectPage } from "./pages/ConnectPage";
-import { ConnectNearbyPage } from "./pages/ConnectNearbyPage";
+import { ConnectNearbyPageRadar } from "./pages/ConnectNearbyPageRadar";
 import { ConnectLocationPage } from "./pages/ConnectLocationPage";
 import { FriendsPage } from "./pages/FriendsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
@@ -44,7 +44,7 @@ function App() {
         <Route path="profile" element={<ProfilePage />} />
         <Route path="profile/:id" element={<UserProfilePage />} />
         <Route path="connect" element={<ConnectPage />} />
-        <Route path="connect/nearby" element={<ConnectNearbyPage />} />
+        <Route path="connect/nearby" element={<ConnectNearbyPageRadar />} />
         <Route path="connect/:location" element={<ConnectLocationPage />} />
         <Route path="friends" element={<FriendsPage />} />
       </Route>
