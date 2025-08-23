@@ -36,7 +36,7 @@ linkedin-networking-platform/
 
 ### 1. Activate the Virtual Environment
 ```bash
-cd C:\Users\ASUS\Downloads\linkedin-networking-platform
+python -m venv .venv
 .\venv\Scripts\activate
 ```
 
@@ -45,7 +45,7 @@ Navigate to the `searchagent/` directory and start the ADK server using either `
 
 #### Option 1: Run with Web UI (`adk web`)
 ```bash
-cd C:\Users\ASUS\Downloads\linkedin-networking-platform\searchagent
+cd C:\Users\ASUS\Downloads\linkedin-networking-platform [not inside the searchagent folder]
 adk web
 ```
 - Open `http://127.0.0.1:8000` in your browser.
@@ -56,8 +56,8 @@ adk web
 
 #### Option 2: Run with CLI (`adk run`)
 ```bash
-cd C:\Users\ASUS\Downloads\linkedin-networking-platform\searchagent
-adk run
+cd C:\Users\ASUS\Downloads\linkedin-networking-platform [not inside the searchagent folder]
+adk run searchagent
 ```
 - Follow the CLI prompts to enter queries like above.
 
