@@ -46,6 +46,7 @@ export interface NearbyUser {
 }
 
 export interface FriendRequest {
+  id: string;
   _id: string;
   from: User;
   to: User;

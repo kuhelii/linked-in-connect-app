@@ -95,8 +95,12 @@ export const FriendRequestCard: React.FC<FriendRequestCardProps> = ({
 
             <div className="flex gap-2">
               <Button
-                onClick={() => acceptRequest.mutate(request._id)}
-                disabled={acceptRequest.isLoading || rejectRequest.isLoading}
+                onClick={() => request.id && acceptRequest.mutate(request.id)}
+                disabled={
+                  acceptRequest.isLoading ||
+                  rejectRequest.isLoading ||
+                  !request.id
+                }
                 size="sm"
                 className="flex-1 bg-success hover:bg-success/90 text-success-foreground"
               >
@@ -105,8 +109,12 @@ export const FriendRequestCard: React.FC<FriendRequestCardProps> = ({
               </Button>
 
               <Button
-                onClick={() => rejectRequest.mutate(request._id)}
-                disabled={acceptRequest.isLoading || rejectRequest.isLoading}
+                onClick={() => request.id && rejectRequest.mutate(request.id)}
+                disabled={
+                  acceptRequest.isLoading ||
+                  rejectRequest.isLoading ||
+                  !request.id
+                }
                 variant="outline"
                 size="sm"
                 className="flex-1 text-muted-foreground hover:text-destructive hover:border-destructive/20 hover:bg-destructive/5"
