@@ -70,21 +70,30 @@ export const MessageInput = ({ onSendMessage, chatId, isUploading }: MessageInpu
   }
 
   return (
-    <div className="p-4 border-t border-border bg-background">
-      <form onSubmit={handleSubmit} className="flex items-end space-x-3">
+    <div
+      className="p-4 border-t border-border bg-background/80 backdrop-blur-lg shadow-lg rounded-b-2xl"
+      style={{
+        boxShadow:
+          "0 4px 24px 0 rgba(0,0,0,0.08), 0 1.5px 6px 0 rgba(0,0,0,0.04)",
+      }}
+    >
+      <form
+        onSubmit={handleSubmit}
+        className="flex items-end gap-4"
+      >
         {/* Media upload button */}
-        <div className="flex space-x-2">
+        <div className="flex items-center">
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
             disabled={isUploading}
-            className="p-2 text-muted-foreground hover:text-foreground hover:bg-accent rounded-full transition-colors"
+            className="p-2 bg-gradient-to-tr from-primary/20 to-accent/20 text-primary hover:bg-primary/30 rounded-xl shadow-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-primary"
             title="Attach file"
           >
             {isUploading ? (
               <div className="w-5 h-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
             ) : (
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"
@@ -94,7 +103,6 @@ export const MessageInput = ({ onSendMessage, chatId, isUploading }: MessageInpu
               </svg>
             )}
           </button>
-
           <input
             ref={fileInputRef}
             type="file"
@@ -111,9 +119,10 @@ export const MessageInput = ({ onSendMessage, chatId, isUploading }: MessageInpu
             onChange={handleInputChange}
             onKeyPress={handleKeyPress}
             placeholder="Type a message..."
-            className="chat-input min-h-[44px] max-h-32"
+            className="chat-input min-h-[44px] max-h-32 px-4 py-2 rounded-xl border border-border bg-white/80 shadow-inner focus:outline-none focus:ring-2 focus:ring-primary text-base transition-all duration-200"
             rows={1}
             disabled={isUploading}
+            style={{ resize: "none" }}
           />
         </div>
 
@@ -121,13 +130,18 @@ export const MessageInput = ({ onSendMessage, chatId, isUploading }: MessageInpu
         <button
           type="submit"
           disabled={!message.trim() && !isUploading}
-          className="p-2 bg-primary text-primary-foreground rounded-full hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="p-3 bg-gradient-to-tr from-blue-500 via-purple-500 to-pink-500 text-white rounded-full shadow-xl hover:scale-110 hover:shadow-2xl focus:outline-none focus:ring-4 focus:ring-pink-400/40 transition-all duration-200 flex items-center justify-center relative disabled:opacity-50 disabled:cursor-not-allowed"
+          style={{
+            boxShadow:
+              "0 0 12px 2px rgba(236,72,153,0.25), 0 2px 8px 0 rgba(59,130,246,0.12)",
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <span className="absolute inset-0 rounded-full pointer-events-none animate-pulse bg-pink-500/10" />
+          <svg className="w-7 h-7 relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
           </svg>
         </button>
       </form>
     </div>
-  )
+  );
 }

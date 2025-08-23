@@ -85,7 +85,7 @@ export const ChatWindow = ({
     return (
       <div className="flex-1 flex flex-col">
         <div className="p-4 border-b border-border">
-          <div className="flex items-center space-x-3">
+          <div className="flex items-center space-x-3" style={{ background: '#f7f8fa' }}>
             <div className="w-10 h-10 bg-muted animate-pulse rounded-full"></div>
             <div>
               <div className="h-4 bg-muted animate-pulse rounded w-32 mb-1"></div>
@@ -110,7 +110,7 @@ export const ChatWindow = ({
   }
 
   return (
-    <div className="flex-1 flex flex-col h-full">
+  <div className="flex-1 flex flex-col h-full overflow-hidden" style={{ background: '#f3f4f8', position: 'relative' }}>
       {/* Chat Header */}
       <div className="p-4 border-b border-border bg-background">
         <div className="flex items-center space-x-3">
@@ -141,15 +141,28 @@ export const ChatWindow = ({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messagesData?.messages.map((message) => (
-          <MessageBubble
-            key={message._id}
-            message={message}
-            isOwn={message.sender._id === currentUserId}
-            onReply={() => setReplyTo(message)}
-          />
-        ))}
+      <div
+        className="flex-1 overflow-y-auto p-4 space-y-4 custom-scrollbar"
+        style={{ marginBottom: '96px', minHeight: 0, maxHeight: 'calc(100vh - 180px)' }}
+      >
+        {messagesData?.messages.length ? (
+          messagesData.messages.map((message) => (
+            <MessageBubble
+              key={message._id}
+              message={message}
+              isOwn={message.sender._id === currentUserId}
+              onReply={() => setReplyTo(message)}
+            />
+          ))
+        ) : (
+          <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
+            <svg className="w-16 h-16 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-3.582 8-8 8a8.955 8.955 0 01-2.697-.413l-2.725.725.725-2.725A8.955 8.955 0 013 12c0-4.418 3.582-8 8-8s8 3.582 8 8z" />
+            </svg>
+            <p className="mb-2">No messages yet</p>
+            <p className="text-sm mb-4">Start the conversation below!</p>
+          </div>
+        )}
 
         {/* Typing Indicator */}
         {chatTypingUsers.length > 0 && (
@@ -159,9 +172,9 @@ export const ChatWindow = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Reply Preview */}
+  {/* Reply Preview */}
       {replyTo && (
-        <div className="px-4 py-2 bg-muted border-t border-border">
+        <div className="px-4 py-2 bg-muted border-t border-border" style={{ position: 'absolute', left: 0, right: 0, bottom: '96px', zIndex: 10 }}>
           <div className="flex items-center justify-between">
             <div className="flex-1">
               <p className="text-sm font-medium">
@@ -193,12 +206,14 @@ export const ChatWindow = ({
         </div>
       )}
 
-      {/* Message Input */}
-      <MessageInput
-        onSendMessage={handleSendMessage}
-        chatId={chat._id}
-        isUploading={uploadMediaMutation.isLoading}
-      />
+  {/* Message Input */}
+      <div style={{ position: 'absolute', left: 0, right: 0, bottom: 0, zIndex: 20, background: 'transparent' }}>
+        <MessageInput
+          onSendMessage={handleSendMessage}
+          chatId={chat._id}
+          isUploading={uploadMediaMutation.isLoading}
+        />
+      </div>
     </div>
   );
 };
