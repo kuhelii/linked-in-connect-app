@@ -24,7 +24,7 @@ export const Navigation: React.FC = () => {
 
   const handleLogout = () => {
     removeTokens();
-    toast.success("Logged out successfully");
+    toast.success("Logged out successfully meow");
     navigate("/login");
   };
 
