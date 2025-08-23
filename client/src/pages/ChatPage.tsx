@@ -17,7 +17,7 @@ export const ChatPage = () => {
   );
 
   return (
-    <div className="h-full flex">
+    <div className=" flex -my-8 h-[calc(100vh-4rem)]">
       <ChatSidebar
         selectedChatId={selectedChatId}
         onChatSelect={setSelectedChatId}
