@@ -1,0 +1,226 @@
+"use client"
+
+import type React from "react"
+import { useState, useEffect } from "react"
+import { useQuery } from "react-query"
+import { MapPinIcon, UserPlusIcon, EyeSlashIcon } from "@heroicons/react/24/outline"
+import { connectService } from "../services/connectService"
+import { FriendButton } from "../components/FriendButton"
+import toast from "react-hot-toast"
+
+export const ConnectNearbyPage: React.FC = () => {
+  const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [radius, setRadius] = useState(10)
+  const [isGettingLocation, setIsGettingLocation] = useState(false)
+
+  const {
+    data: nearbyUsers,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery(
+    ["nearbyUsers", location?.lat, location?.lng, radius],
+    () => connectService.findNearbyUsers(location!.lat, location!.lng, radius),
+    {
+      enabled: !!location,
+      staleTime: 2 * 60 * 1000, // 2 minutes
+    },
+  )
+
+  const getCurrentLocation = async () => {
+    setIsGettingLocation(true)
+    try {
+      const coords = await connectService.getCurrentLocation()
+      setLocation(coords)
+      toast.success("Location found!")
+    } catch (error) {
+      toast.error("Unable to get your location. Please enable location services.")
+    } finally {
+      setIsGettingLocation(false)
+    }
+  }
+
+  useEffect(() => {
+    getCurrentLocation()
+  }, [])
+
+  const formatDistance = (distance: number) => {
+    if (distance < 1000) {
+      return `${Math.round(distance)}m away`
+    }
+    return `${(distance / 1000).toFixed(1)}km away`
+  }
+
+  if (!location && !isGettingLocation) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-foreground">Find Nearby Users</h1>
+          <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+            Discover NetworkHub users in your area and expand your professional network.
+          </p>
+        </div>
+
+        <div className="card text-center space-y-6">
+          <div className="w-24 h-24 bg-primary/10 rounded-full flex items-center justify-center mx-auto">
+            <MapPinIcon className="w-12 h-12 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-2xl font-bold text-foreground mb-2">Location Access Required</h2>
+            <p className="text-muted-foreground mb-6">
+              We need your location to find nearby users. Your location is only used for discovery and is not shared
+              with others unless you choose to make it visible.
+            </p>
+            <button onClick={getCurrentLocation} className="btn-primary">
+              <MapPinIcon className="w-5 h-5 mr-2" />
+              Enable Location Services
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (isGettingLocation) {
+    return (
+      <div className="space-y-8">
+        <div className="text-center space-y-4">
+          <h1 className="text-4xl font-bold text-foreground">Find Nearby Users</h1>
+        </div>
+        <div className="card text-center space-y-4">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
+          <p className="text-muted-foreground">Getting your location...</p>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-8">
+      {/* Header */}
+      <div className="text-center space-y-4">
+        <h1 className="text-4xl font-bold text-foreground">Nearby Users</h1>
+        <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+          {nearbyUsers?.count || 0} users found within {radius}km of your location
+        </p>
+      </div>
+
+      {/* Controls */}
+      <div className="card">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center space-x-4">
+            <label htmlFor="radius" className="text-sm font-medium text-foreground">
+              Search radius:
+            </label>
+            <select
+              id="radius"
+              value={radius}
+              onChange={(e) => setRadius(Number(e.target.value))}
+              className="input-field w-auto"
+            >
+              <option value={1}>1km</option>
+              <option value={5}>5km</option>
+              <option value={10}>10km</option>
+              <option value={25}>25km</option>
+              <option value={50}>50km</option>
+            </select>
+          </div>
+          <button onClick={() => refetch()} disabled={isLoading} className="btn-secondary">
+            {isLoading ? "Searching..." : "Refresh"}
+          </button>
+        </div>
+      </div>
+
+      {/* Results */}
+      {error && (
+        <div className="card bg-destructive/10 border-destructive/20">
+          <p className="text-destructive">Failed to load nearby users. Please try again.</p>
+        </div>
+      )}
+
+      {isLoading && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="card animate-pulse">
+              <div className="flex items-center space-x-4">
+                <div className="w-16 h-16 bg-muted rounded-full"></div>
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 bg-muted rounded w-3/4"></div>
+                  <div className="h-3 bg-muted rounded w-1/2"></div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {nearbyUsers && nearbyUsers.users.length === 0 && (
+        <div className="card text-center space-y-4">
+          <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
+            <UserPlusIcon className="w-8 h-8 text-muted-foreground" />
+          </div>
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-2">No users found nearby</h3>
+            <p className="text-muted-foreground mb-4">
+              Try increasing your search radius or check back later as more users join the platform.
+            </p>
+            <button onClick={() => setRadius(radius * 2)} className="btn-primary">
+              Expand Search to {radius * 2}km
+            </button>
+          </div>
+        </div>
+      )}
+
+      {nearbyUsers && nearbyUsers.users.length > 0 && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {nearbyUsers.users.map((user) => (
+            <div key={user._id} className="card">
+              <div className="space-y-4">
+                <div className="flex items-center space-x-4">
+                  <div className="flex-shrink-0">
+                    {user.profileImage && !user.isAnonymous ? (
+                      <img
+                        src={user.profileImage || "/placeholder.svg"}
+                        alt={user.name}
+                        className="w-16 h-16 rounded-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-16 h-16 rounded-full bg-muted flex items-center justify-center">
+                        {user.isAnonymous ? (
+                          <EyeSlashIcon className="w-8 h-8 text-muted-foreground" />
+                        ) : (
+                          <span className="text-muted-foreground font-medium text-xl">
+                            {user.name.charAt(0).toUpperCase()}
+                          </span>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-foreground truncate">{user.name}</h3>
+                    {user.headline && !user.isAnonymous && (
+                      <p className="text-sm text-muted-foreground truncate">{user.headline}</p>
+                    )}
+                    <div className="flex items-center text-xs text-muted-foreground mt-1">
+                      <MapPinIcon className="w-3 h-3 mr-1" />
+                      {formatDistance(user.distance)}
+                      {user.location && !user.isAnonymous && ` • ${user.location}`}
+                    </div>
+                  </div>
+                </div>
+
+                {!user.isAnonymous && <FriendButton userId={user._id} userName={user.name} className="w-full" />}
+
+                {user.isAnonymous && (
+                  <div className="text-center py-2">
+                    <p className="text-xs text-muted-foreground">This user prefers to remain anonymous</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
