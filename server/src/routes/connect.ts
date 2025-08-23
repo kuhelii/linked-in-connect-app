@@ -4,6 +4,7 @@ import { linkedinSearchService } from "../services/linkedinSearch";
 import User from "../models/User";
 import { optionalAuth } from "../middleware/auth";
 import type { NearbyUser } from "../types";
+import { calculateDistance, filterUsersByDistance } from "../utils/distance";
 
 const router = express.Router();
 
@@ -109,45 +110,45 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
       }
     }
 
-    console.log("Starting MongoDB geospatial query");
+    console.log("Fetching all users from database");
 
-    // Find nearby users using geospatial query
-    console.log("Executing geospatial query with params:", {
-      longitude,
+    // Get all users (excluding current user if authenticated)
+    const allUsers = await User.find({
+      ...(req.user ? { _id: { $ne: req.user._id } } : {}), // Exclude current user if authenticated
+    })
+      .select({
+        _id: 1,
+        name: 1,
+        headline: 1,
+        profileImage: 1,
+        location: 1,
+        isAnonymous: 1,
+        coords: 1,
+      })
+      .lean();
+
+    console.log(`Found ${allUsers.length} users with valid coordinates`);
+    console.log("Calculating distances and filtering by radius", allUsers);
+
+    // Calculate distances using Haversine formula and filter by radius
+    const nearbyUsersWithDistance = filterUsersByDistance(
+      allUsers,
       latitude,
-      radiusKm,
-      maxDistanceMeters: radiusKm * 1000,
-    });
+      longitude,
+      radiusKm
+    );
 
-    const nearbyUsers = await User.aggregate([
-      {
-        $geoNear: {
-          near: { type: "Point", coordinates: [longitude, latitude] },
-          distanceField: "distance",
-          maxDistance: radiusKm * 1000,
-          spherical: true,
-          query: { "coords.coordinates": { $ne: [0, 0] } },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          name: 1,
-          headline: 1,
-          profileImage: 1,
-          location: 1,
-          isAnonymous: 1,
-          distance: { $round: ["$distance", 0] },
-        },
-      },
-      { $limit: 50 },
-    ]);
+    console.log(
+      `Found ${nearbyUsersWithDistance.length} users within ${radiusKm}km radius`
+    );
 
-    console.log("MongoDB query completed. Found", nearbyUsers.length, "users");
-    console.log("Raw nearby users data:", nearbyUsers);
+    console.log("Nearby users with distance:", nearbyUsersWithDistance);
+
+    // Limit results and transform for response
+    const limitedUsers = nearbyUsersWithDistance.slice(0, 50);
 
     // Transform results to hide information for anonymous users
-    const transformedUsers: NearbyUser[] = nearbyUsers.map((user) => ({
+    const transformedUsers: NearbyUser[] = limitedUsers.map((user) => ({
       _id: user._id.toString(),
       name: user.isAnonymous ? "Anonymous User" : user.name,
       headline: user.isAnonymous ? "" : user.headline || "",
@@ -166,6 +167,7 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
         count: transformedUsers.length,
         searchRadius: radiusKm,
         searchCenter: { lat: latitude, lng: longitude },
+        calculationMethod: "haversine",
       },
     };
 
@@ -179,6 +181,140 @@ router.get("/nearby", optionalAuth, async (req: any, res: any) => {
       error instanceof Error ? error.stack : "No stack trace"
     );
     res.status(500).json({ error: "Failed to find nearby users" });
+  }
+});
+
+// Search users by various criteria
+router.get("/users", optionalAuth, async (req: any, res: any) => {
+  try {
+    console.log("User search initiated");
+    console.log("Request query:", req.query);
+    console.log("Authenticated user:", req.user ? req.user._id : "None");
+
+    const {
+      q, // search query
+      lat,
+      lng,
+      radius,
+      page = "1",
+      limit = "20",
+    } = req.query as {
+      q?: string;
+      lat?: string;
+      lng?: string;
+      radius?: string;
+      page?: string;
+      limit?: string;
+    };
+
+    const pageNum = Math.max(1, parseInt(page, 10));
+    const limitNum = Math.min(50, Math.max(1, parseInt(limit, 10)));
+    const skip = (pageNum - 1) * limitNum;
+
+    // Build search criteria
+    const searchCriteria: any = {
+      ...(req.user ? { _id: { $ne: req.user._id } } : {}), // Exclude current user if authenticated
+    };
+
+    // Add text search if query provided
+    if (q && q.trim()) {
+      const searchRegex = new RegExp(q.trim(), "i");
+      searchCriteria.$or = [
+        { name: searchRegex },
+        { headline: searchRegex },
+        { location: searchRegex },
+      ];
+    }
+
+    console.log("Search criteria:", searchCriteria);
+
+    // Get users based on search criteria
+    const users = await User.find(searchCriteria)
+      .select({
+        _id: 1,
+        name: 1,
+        headline: 1,
+        profileImage: 1,
+        location: 1,
+        isAnonymous: 1,
+        coords: 1,
+      })
+      .lean();
+
+    console.log(`Found ${users.length} users matching search criteria`);
+
+    let filteredUsers = users;
+
+    // Apply distance filtering if coordinates provided
+    if (lat && lng && radius) {
+      const latitude = parseFloat(lat);
+      const longitude = parseFloat(lng);
+      const radiusKm = parseFloat(radius);
+
+      if (!isNaN(latitude) && !isNaN(longitude) && !isNaN(radiusKm)) {
+        console.log(
+          `Applying distance filter: ${radiusKm}km from ${latitude}, ${longitude}`
+        );
+
+        filteredUsers = filterUsersByDistance(
+          users, // No need to filter here since extractCoordinates handles both formats
+          latitude,
+          longitude,
+          radiusKm
+        );
+
+        console.log(`${filteredUsers.length} users within radius`);
+      }
+    }
+
+    // Apply pagination
+    const totalCount = filteredUsers.length;
+    const paginatedUsers = filteredUsers.slice(skip, skip + limitNum);
+
+    // Transform results
+    const transformedUsers: NearbyUser[] = paginatedUsers.map((user) => ({
+      _id: user._id.toString(),
+      name: user.isAnonymous ? "Anonymous User" : user.name,
+      headline: user.isAnonymous ? "" : user.headline || "",
+      profileImage: user.isAnonymous ? "" : user.profileImage || "",
+      location: user.isAnonymous ? "" : user.location || "",
+      distance:
+        "distance" in user && typeof user.distance === "number"
+          ? user.distance
+          : 0,
+      isAnonymous: user.isAnonymous,
+    }));
+
+    const responseData = {
+      success: true,
+      data: {
+        users: transformedUsers,
+        count: transformedUsers.length,
+        totalCount,
+        currentPage: pageNum,
+        totalPages: Math.ceil(totalCount / limitNum),
+        hasNextPage: skip + limitNum < totalCount,
+        hasPrevPage: pageNum > 1,
+        searchQuery: q || "",
+        ...(lat && lng && radius
+          ? {
+              searchRadius: parseFloat(radius),
+              searchCenter: { lat: parseFloat(lat), lng: parseFloat(lng) },
+              calculationMethod: "haversine",
+            }
+          : {}),
+      },
+    };
+
+    console.log(`Sending response with ${transformedUsers.length} users`);
+    res.json(responseData);
+  } catch (error) {
+    console.error("User search error:", error);
+    console.error(
+      "Error stack:",
+      error instanceof Error ? error.stack : "No stack trace"
+    );
+    res.status(500).json({ error: "Failed to search users" });
   }
 });
 
