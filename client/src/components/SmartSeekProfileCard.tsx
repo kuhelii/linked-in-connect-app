@@ -57,7 +57,15 @@ export const SmartSeekProfileCard: React.FC<SmartSeekProfileCardProps> = ({
 
   if (user) {
     return (
-      <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+      <div
+        className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow"
+        onClick={() => {
+          if (user?._id) {
+            window.location.href = `/profile/${user._id}`;
+          }
+        }}
+        style={{ cursor: user?._id ? "pointer" : "default" }}
+      >
         <div className="flex items-start space-x-3">
           <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center">
             {user.profileImage ? (

@@ -32,7 +32,7 @@ export interface UserResult {
   profileImage: string;
   location: string;
   distance: number;
-  lastVisit: string;
+  lastVisit: string | null;
   isAnonymous: boolean;
 }
 
@@ -49,7 +49,6 @@ export const useSmartSeek = () => {
       const user = getCurrentUser();
       if (!user) throw new Error("User not authenticated");
 
-      // Use normalized id returned by getCurrentUser
       const userId = user.userId;
       if (!userId) throw new Error("Missing user id");
 
@@ -65,67 +64,63 @@ export const useSmartSeek = () => {
     response: any
   ): { content: string; profiles?: ProfileResult[]; users?: UserResult[] } => {
     try {
-      // Handle different response formats
-      if (Array.isArray(response)) {
-        const lastMessage = response[response.length - 1];
-        if (lastMessage?.content?.parts) {
-          const parts = lastMessage.content.parts;
-          let content = "";
-          let profiles: ProfileResult[] = [];
-          let users: UserResult[] = [];
+      // Handle empty or non-array response
+      if (!Array.isArray(response) || response.length === 0) {
+        return {
+          content: "No response data available.",
+        };
+      }
 
-          for (const part of parts) {
-            if (part.text) {
-              content += part.text;
+      let content = "";
+      let profiles: ProfileResult[] = [];
+      let users: UserResult[] = [];
 
-              // Try to extract structured data from JSON in text
-              try {
-                const jsonMatch = part.text.match(/```json\n([\s\S]*?)\n```/);
-                if (jsonMatch) {
-                  const jsonData = JSON.parse(jsonMatch[1]);
-
-                  // Handle search_people_response
-                  if (jsonData.search_people_response?.data?.profiles) {
-                    profiles = jsonData.search_people_response.data.profiles;
-                  }
-
-                  // Handle search_nearby_users_response
-                  if (
-                    jsonData.search_nearby_users_response?.result?.[0]?.data
-                      ?.users
-                  ) {
-                    users =
-                      jsonData.search_nearby_users_response.result[0].data
-                        .users;
-                  }
-                }
-              } catch (e) {
-                // Ignore JSON parsing errors
-              }
-            }
-
-            // Handle function responses
-            if (part.functionResponse) {
-              const funcResponse = part.functionResponse.response;
-              if (funcResponse?.data?.profiles) {
-                profiles = funcResponse.data.profiles;
-              }
-              if (funcResponse?.result?.[0]?.data?.users) {
-                users = funcResponse.result[0].data.users;
-              }
-            }
-          }
-          return {
-            content,
-            profiles: profiles.length > 0 ? profiles : undefined,
-            users: users.length > 0 ? users : undefined,
-          };
-        }
+      // Case 1: Location-based search (profiles in [1].content.parts[0].functionResponse.response.data.profiles)
+      if (
+        response.length >= 2 &&
+        response[1]?.content?.parts?.[0]?.functionResponse?.response?.data
+          ?.profiles
+      ) {
+        profiles =
+          response[1].content.parts[0].functionResponse.response.data.profiles;
+        content =
+          "Here are the search results for software developers in Kolkata:";
+      }
+      // Case 2: Random user search (users in [1].content.parts[0].functionResponse.response.data)
+      else if (
+        response.length >= 2 &&
+        response[1]?.content?.parts?.[0]?.functionResponse?.response?.data
+      ) {
+        const data =
+          response[1].content.parts[0].functionResponse.response.data;
+        // Handle both single user object and array of users
+        users = Array.isArray(data) ? data : [data];
+        content = "Here is a random user found:";
+      }
+      // Case 3: Nearby users search (users in [1].content.parts[0].functionResponse.response.result[0].data.users)
+      else if (
+        response.length >= 2 &&
+        response[1]?.content?.parts?.[0]?.functionResponse?.response
+          ?.result?.[0]?.data?.users
+      ) {
+        users =
+          response[1].content.parts[0].functionResponse.response.result[0].data
+            .users;
+        content = "Here are the nearby users found:";
+      }
+      // Case 4: Normal text response (use [0].content.parts[0].text)
+      else if (response[0]?.content?.parts?.[0]?.text) {
+        content = response[0].content.parts[0].text;
+      }
+      // Fallback for unexpected structure
+      else {
+        content = "No valid response data found.";
       }
 
       return {
-        content:
-          "I received your message but couldn't process the response properly.",
+        content: content || "No content available.",
+        profiles: profiles.length > 0 ? profiles : undefined,
+        users: users.length > 0 ? users : undefined,
       };
     } catch (error) {
       console.error("Error parsing agent response:", error);
@@ -142,7 +137,6 @@ export const useSmartSeek = () => {
       const user = getCurrentUser();
       if (!user) throw new Error("User not authenticated");
 
-      // Add user message
       const userMessage: ChatMessage = {
         id: `user_${Date.now()}`,
         role: "user",
@@ -154,12 +148,10 @@ export const useSmartSeek = () => {
       setIsLoading(true);
 
       try {
-        // Authenticate if not already done
         if (!isAuthenticated) {
           await authenticateSession();
         }
 
-        // Send message to agent
         const userId = user.userId;
         if (!userId) throw new Error("Missing user id");
         const runPayload: RunRequest = {
@@ -173,9 +165,8 @@ export const useSmartSeek = () => {
         };
 
         const result = await runAgentCommand(runPayload);
-        const { content, profiles, users } = parseAgentResponse(result.result);
+        const { content, profiles, users } = parseAgentResponse(result);
 
-        // Add assistant response
         const assistantMessage: ChatMessage = {
           id: `assistant_${Date.now()}`,
           role: "assistant",
