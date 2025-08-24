@@ -35,3 +35,4 @@ venv/
 .venv/
 __pycache__/
 searchagent/__pycache__/
+.env
