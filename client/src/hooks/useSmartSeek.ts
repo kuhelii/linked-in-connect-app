@@ -115,7 +115,6 @@ export const useSmartSeek = () => {
               }
             }
           }
-
           return {
             content,
             profiles: profiles.length > 0 ? profiles : undefined,
