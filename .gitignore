@@ -33,3 +33,5 @@ rewrite.py
 venv/
 
 .venv/
+__pycache__/
+searchagent/__pycache__/

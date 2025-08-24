@@ -11,7 +11,7 @@ load_dotenv()
 
 # MongoDB setup
 mongo_client = pymongo.MongoClient(os.getenv("MONGO_URI", "mongodb://localhost:27017"))
-db = mongo_client["linkedin_networking"]
+db = mongo_client["test"]
 users_collection: Collection = db["users"]
 
 # Create geospatial index

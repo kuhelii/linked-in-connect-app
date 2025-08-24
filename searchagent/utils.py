@@ -34,8 +34,20 @@ def calculate_bearing(lat1: float, lon1: float, lat2: float, lon2: float) -> flo
     return round(bearing, 2)
 
 def get_relative_time_string(timestamp: str) -> str:
-    now = datetime.now()
-    diff = now - datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+    from datetime import timezone
+    now = datetime.now(timezone.utc)
+    # If timestamp is already a datetime object, use it directly
+    if isinstance(timestamp, datetime):
+        dt = timestamp
+        if dt.tzinfo is None:
+            dt = dt.replace(tzinfo=timezone.utc)
+    else:
+        # Handle timestamps ending with 'Z' (UTC)
+        if timestamp.endswith("Z"):
+            dt = datetime.fromisoformat(timestamp.replace("Z", "+00:00"))
+        else:
+            dt = datetime.fromisoformat(timestamp)
+    diff = now - dt
     diff_mins = diff.total_seconds() // 60
     diff_hours = diff_mins // 60
     diff_days = diff_hours // 24
