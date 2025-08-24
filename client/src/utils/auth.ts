@@ -31,6 +31,7 @@ export const isAuthenticated = (): boolean => {
 };
 
 export const getCurrentUser = (): {
+  [x: string]: string;
   userId: string;
   name: string;
   email: string;

@@ -13,6 +13,7 @@ import { FriendsPage } from "./pages/FriendsPage";
 import { ProtectedRoute } from "./components/ProtectedRoute";
 import { isAuthenticated } from "./utils/auth";
 import { ChatPage } from "./pages/ChatPage";
+import { SmartSeekPage } from "./pages/SmartSeekPage";
 
 function App() {
   return (
@@ -50,6 +51,7 @@ function App() {
         <Route path="friends" element={<FriendsPage />} />
         <Route path="chat" element={<ChatPage />} />
         <Route path="chat/:chatId" element={<ChatPage />} />
+        <Route path="smartseek" element={<SmartSeekPage />} />
       </Route>
 
       {/* Catch all */}

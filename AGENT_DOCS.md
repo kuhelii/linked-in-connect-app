@@ -63,3 +63,7 @@ adk run searchagent
 
 3. Integrate with React Frontend
 # SOON
+```bash
+cd C:\Users\ASUS\Downloads\linkedin-networking-platform [not inside the searchagent folder]
+adk api_server --reload_agents --allow_origins http://localhost:3000
+```

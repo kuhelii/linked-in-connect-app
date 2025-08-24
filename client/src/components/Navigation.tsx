@@ -13,7 +13,10 @@ import { useReceivedRequests } from "../hooks/useFriends";
 import { removeTokens, getUser } from "../utils/auth";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
-import { ChatBubbleLeftRightIcon } from "@heroicons/react/24/outline";
+import {
+  ChatBubbleLeftRightIcon,
+  SparklesIcon,
+} from "@heroicons/react/24/outline";
 
 export const Navigation: React.FC = () => {
   const location = useLocation();
@@ -56,6 +59,8 @@ export const Navigation: React.FC = () => {
       badge: requests?.count && requests.count > 0 ? requests.count : undefined,
     },
     { path: "/chat", icon: ChatBubbleLeftRightIcon, label: "Messages" },
+    { path: "/smartseek", icon: SparklesIcon, label: "SmartSeek" },
+
     { path: "/profile", icon: UserIcon, label: "Profile" },
   ];
 
