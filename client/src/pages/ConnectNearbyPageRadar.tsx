@@ -5,6 +5,7 @@ import { MapPinIcon, UserPlusIcon } from "@heroicons/react/24/outline";
 import { RefreshCcw, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { connectService } from "../services/connectService";
+import type { NearbyUsersResponse } from "../services/connectService";
 import { FriendButton } from "../components/FriendButton";
 import type { NearbyUser } from "../types";
 
@@ -24,7 +25,7 @@ const CIRCLE_RADII = [RAD * 0.33, RAD * 0.66, RAD];
 const CLUSTER_THRESHOLD_PX = 44;
 const CENTER_RING_RADIUS = 38;
 const MAX_AVATAR = 34;
-const MIN_AVATAR = 18;
+const MIN_AVATAR = 18; // ensure minimum avatar size when many users
 
 function seededHash(str: string) {
   let h = 2166136261;
@@ -120,7 +121,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
     isFetching,
     error,
     refetch,
-  } = useQuery(
+  } = useQuery<NearbyUsersResponse, Error>(
     ["nearbyUsers", location?.lat, location?.lng, radius],
     () => connectService.findNearbyUsers(location!.lat, location!.lng, radius),
     { enabled: !!location, staleTime: 2 * 60 * 1000 }
@@ -197,7 +198,7 @@ export const ConnectNearbyPageRadar: React.FC = () => {
 
       let avatar = MAX_AVATAR;
       const n = clustered.length;
-      if (n > 120) avatar = 18;
+  if (n > 120) avatar = MIN_AVATAR;
       else if (n > 80) avatar = 20;
       else if (n > 50) avatar = 24;
       else if (n > 30) avatar = 28;

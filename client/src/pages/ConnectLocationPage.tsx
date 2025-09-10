@@ -7,20 +7,36 @@ import { useQuery } from "react-query"
 import { MagnifyingGlassIcon, LinkIcon, ChevronLeftIcon, ChevronRightIcon } from "@heroicons/react/24/outline"
 import { connectService } from "../services/connectService"
 
+// Types for the location search results (align with connectService response)
+interface LocationSearchProfile {
+  name: string
+  headline?: string
+  position?: string
+  link: string
+  thumbnail?: string
+}
+
+interface LocationSearchResult {
+  profiles: LocationSearchProfile[]
+  hasNextPage: boolean
+}
+
 export const ConnectLocationPage: React.FC = () => {
   const { location } = useParams<{ location: string }>()
   const [searchParams] = useSearchParams()
   const [currentPage, setCurrentPage] = useState(1)
   const [role, setRole] = useState(searchParams.get("role") || "")
 
-  const {
-    data: searchResults,
-    isLoading,
-    error,
-    refetch,
-  } = useQuery(
+  const { data: searchResults, isLoading, error, refetch } = useQuery<LocationSearchResult, Error>(
     ["locationSearch", location, role, currentPage],
-    () => connectService.searchByLocation(decodeURIComponent(location!), role, currentPage),
+    async () => {
+      const data = await connectService.searchByLocation(
+        decodeURIComponent(location!),
+        role,
+        currentPage,
+      )
+      return data as LocationSearchResult
+    },
     {
       enabled: !!location,
       staleTime: 5 * 60 * 1000, // 5 minutes
@@ -90,7 +106,7 @@ export const ConnectLocationPage: React.FC = () => {
         </div>
       )}
 
-      {searchResults && searchResults.profiles.length === 0 && (
+  {searchResults && searchResults.profiles.length === 0 && (
         <div className="card text-center space-y-4">
           <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto">
             <MagnifyingGlassIcon className="w-8 h-8 text-muted-foreground" />
@@ -102,7 +118,7 @@ export const ConnectLocationPage: React.FC = () => {
         </div>
       )}
 
-      {searchResults && searchResults.profiles.length > 0 && (
+  {searchResults && searchResults.profiles.length > 0 && (
         <>
           {/* Results Count */}
           <div className="flex items-center justify-between">

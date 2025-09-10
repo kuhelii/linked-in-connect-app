@@ -26,7 +26,7 @@ export const ProfilePage: React.FC = () => {
   const [isGettingLocation, setIsGettingLocation] = useState(false);
   const queryClient = useQueryClient();
 
-  const { data: profile, isLoading } = useQuery(
+  const { data: profile, isLoading } = useQuery<any, Error>(
     "currentProfile",
     profileService.getCurrentProfile
   );
@@ -35,7 +35,6 @@ export const ProfilePage: React.FC = () => {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors },
   } = useForm<ProfileForm>({
     defaultValues: {
@@ -46,7 +45,7 @@ export const ProfilePage: React.FC = () => {
     },
   });
 
-  const updateProfileMutation = useMutation(profileService.updateProfile, {
+  const updateProfileMutation = useMutation<any, any, any>(profileService.updateProfile, {
     onSuccess: () => {
       toast.success("Profile updated successfully!");
       queryClient.invalidateQueries("currentProfile");
