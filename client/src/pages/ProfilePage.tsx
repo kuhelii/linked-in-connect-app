@@ -59,7 +59,6 @@ export const ProfilePage: React.FC = () => {
     },
   });
 
-  // Set form values when profile loads
   React.useEffect(() => {
     if (profile) {
       setValue("name", profile.name);
@@ -87,7 +86,6 @@ export const ProfilePage: React.FC = () => {
     setIsGettingLocation(true);
     try {
       const coords = await connectService.getCurrentLocation();
-      // You could reverse geocode here to get a readable location
       setValue(
         "location",
         `${coords.lat.toFixed(4)}, ${coords.lng.toFixed(4)}`
@@ -116,227 +114,188 @@ export const ProfilePage: React.FC = () => {
   };
 
   if (isLoading) {
-    return (
-      <div className="space-y-8">
-        <div className="card animate-pulse">
-          <div className="flex items-center space-x-6">
-            <div className="w-32 h-32 bg-muted rounded-full"></div>
-            <div className="flex-1 space-y-4">
-              <div className="h-8 bg-muted rounded w-1/2"></div>
-              <div className="h-4 bg-muted rounded w-3/4"></div>
-              <div className="h-4 bg-muted rounded w-1/2"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
+    return <div className="animate-pulse h-64 bg-gray-100 rounded-lg"></div>;
   }
 
   if (!profile) {
     return (
-      <div className="card text-center">
-        <p className="text-destructive">Failed to load profile</p>
+      <div className="text-center text-red-500 font-medium mt-10">
+        Failed to load profile
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="max-w-4xl mx-auto mt-10 p-6 space-y-8 bg-white rounded-2xl shadow-lg border border-gray-200">
       {/* Header */}
-      <div className="text-center space-y-4">
-        <h1 className="text-4xl font-bold text-foreground">My Profile</h1>
-        <p className="text-xl text-muted-foreground">
-          Manage your professional information and privacy settings
+      <div className="text-center space-y-2">
+        <h1 className="text-4xl font-bold text-gray-900">My Profile</h1>
+        <p className="text-gray-500">
+          Update your information and control your visibility
         </p>
       </div>
 
       {/* Profile Card */}
-      <div className="card">
-        {!isEditing ? (
-          // View Mode
-          <div className="space-y-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-              <div className="relative">
-                {profile.profileImage ? (
-                  <img
-                    src={profile.profileImage || "/placeholder.svg"}
-                    alt={profile.name}
-                    className="w-32 h-32 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground font-medium text-4xl">
-                      {profile.name.charAt(0).toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                {profile.isAnonymous && (
-                  <div className="absolute -top-2 -right-2 w-8 h-8 bg-muted rounded-full flex items-center justify-center border-2 border-background">
-                    <EyeSlashIcon className="w-4 h-4 text-muted-foreground" />
-                  </div>
-                )}
-              </div>
-
-              <div className="flex-1 text-center md:text-left">
-                <h2 className="text-3xl font-bold text-foreground mb-2">
-                  {profile.name}
-                </h2>
-                {profile.headline && (
-                  <p className="text-lg text-muted-foreground mb-3">
-                    {profile.headline}
-                  </p>
-                )}
-                {profile.location && (
-                  <div className="flex items-center justify-center md:justify-start text-muted-foreground mb-4">
-                    <MapPinIcon className="w-5 h-5 mr-2" />
-                    {profile.location}
-                  </div>
-                )}
-                <div className="flex items-center justify-center md:justify-start space-x-4 text-sm text-muted-foreground">
-                  <span>{profile.friendsCount} connections</span>
-                  <span>•</span>
-                  <span className="flex items-center">
-                    {profile.isAnonymous ? (
-                      <EyeSlashIcon className="w-4 h-4 mr-1" />
-                    ) : (
-                      <EyeIcon className="w-4 h-4 mr-1" />
-                    )}
-                    {profile.isAnonymous ? "Anonymous" : "Public"}
-                  </span>
-                </div>
-              </div>
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-8">
+        {/* Profile Image */}
+        <div className="relative group">
+          {imagePreview || profile.profileImage ? (
+            <img
+              src={imagePreview || profile.profileImage || "/placeholder.svg"}
+              alt="Profile"
+              className="w-36 h-36 md:w-40 md:h-40 rounded-full object-cover shadow-md"
+            />
+          ) : (
+            <div className="w-36 h-36 md:w-40 md:h-40 rounded-full bg-gray-100 flex items-center justify-center shadow-md">
+              <span className="text-gray-400 text-5xl font-bold">
+                {profile.name.charAt(0).toUpperCase()}
+              </span>
             </div>
+          )}
+          {profile.isAnonymous && (
+            <div className="absolute top-0 right-0 bg-gray-100 p-1 rounded-full shadow-md">
+              <EyeSlashIcon className="w-5 h-5 text-gray-500" />
+            </div>
+          )}
 
-            <div className="flex justify-center">
+          {isEditing && (
+            <label className="absolute bottom-0 right-0 bg-blue-500 p-2 rounded-full cursor-pointer transition-transform transform group-hover:scale-110">
+              <CameraIcon className="w-5 h-5 text-white" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
+                className="hidden"
+              />
+            </label>
+          )}
+        </div>
+
+        {/* Profile Details */}
+        <div className="flex-1 space-y-4 w-full">
+          {!isEditing ? (
+            <div className="space-y-2">
+              <h2 className="text-3xl font-bold text-gray-900">
+                {profile.name}
+              </h2>
+              {profile.headline && (
+                <p className="text-gray-600">{profile.headline}</p>
+              )}
+              {profile.location && (
+                <div className="flex items-center text-gray-500">
+                  <MapPinIcon className="w-5 h-5 mr-1" />
+                  {profile.location}
+                </div>
+              )}
+              <div className="flex items-center gap-4 text-sm text-gray-500">
+                <span>{profile.friendsCount} connections</span>
+                <span>•</span>
+                <span className="flex items-center gap-1">
+                  {profile.isAnonymous ? (
+                    <EyeSlashIcon className="w-4 h-4" />
+                  ) : (
+                    <EyeIcon className="w-4 h-4" />
+                  )}
+                  {profile.isAnonymous ? "Anonymous" : "Public"}
+                </span>
+              </div>
               <button
                 onClick={() => setIsEditing(true)}
-                className="btn-primary"
+                className="mt-4 px-6 py-2 bg-blue-500 text-white font-semibold rounded-lg shadow hover:bg-blue-600 transition"
               >
                 Edit Profile
               </button>
             </div>
-          </div>
-        ) : (
-          // Edit Mode
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            <div className="flex flex-col md:flex-row items-center md:items-start space-y-4 md:space-y-0 md:space-x-6">
-              <div className="relative">
-                {imagePreview || profile.profileImage ? (
-                  <img
-                    src={
-                      imagePreview || profile.profileImage || "/placeholder.svg"
-                    }
-                    alt="Profile"
-                    className="w-32 h-32 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-32 h-32 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-muted-foreground font-medium text-4xl">
-                      {watch("name")?.charAt(0).toUpperCase() || "?"}
-                    </span>
-                  </div>
+          ) : (
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="space-y-4 bg-gray-50 p-4 rounded-lg shadow-inner"
+            >
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Full Name
+                </label>
+                <input
+                  {...register("name", { required: "Name is required" })}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.name.message}
+                  </p>
                 )}
-                <label className="absolute bottom-0 right-0 w-10 h-10 bg-primary rounded-full flex items-center justify-center cursor-pointer hover:bg-primary/90 transition-colors">
-                  <CameraIcon className="w-5 h-5 text-primary-foreground" />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Professional Headline
+                </label>
+                <input
+                  {...register("headline")}
+                  className="w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                  placeholder="Software Engineer at Company"
+                />
+              </div>
+
+              <div>
+                <label className="block text-gray-700 font-medium mb-1">
+                  Location
+                </label>
+                <div className="flex gap-2">
                   <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageChange}
-                    className="hidden"
+                    {...register("location")}
+                    className="flex-1 p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-400"
+                    placeholder="Enter your location"
                   />
+                  <button
+                    type="button"
+                    onClick={getCurrentLocation}
+                    disabled={isGettingLocation}
+                    className="px-3 bg-gray-200 rounded-lg hover:bg-gray-300 transition"
+                  >
+                    <MapPinIcon className="w-5 h-5 text-gray-600" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <input
+                  {...register("isAnonymous")}
+                  type="checkbox"
+                  id="isAnonymous"
+                  className="rounded"
+                />
+                <label htmlFor="isAnonymous" className="text-gray-700 text-sm">
+                  Make my profile anonymous
                 </label>
               </div>
 
-              <div className="flex-1 space-y-4 w-full">
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Full Name
-                  </label>
-                  <input
-                    {...register("name", { required: "Name is required" })}
-                    className="input-field"
-                    placeholder="Enter your full name"
-                  />
-                  {errors.name && (
-                    <p className="mt-1 text-sm text-destructive">
-                      {errors.name.message}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Professional Headline
-                  </label>
-                  <input
-                    {...register("headline")}
-                    className="input-field"
-                    placeholder="e.g., Software Engineer at Tech Company"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-foreground mb-2">
-                    Location
-                  </label>
-                  <div className="flex space-x-2">
-                    <input
-                      {...register("location")}
-                      className="input-field flex-1"
-                      placeholder="Enter your location"
-                    />
-                    <button
-                      type="button"
-                      onClick={getCurrentLocation}
-                      disabled={isGettingLocation}
-                      className="btn-outline px-3"
-                    >
-                      <MapPinIcon className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-
-                <div className="flex items-center space-x-3">
-                  <input
-                    {...register("isAnonymous")}
-                    type="checkbox"
-                    id="isAnonymous"
-                    className="rounded"
-                  />
-                  <label
-                    htmlFor="isAnonymous"
-                    className="text-sm font-medium text-foreground"
-                  >
-                    Make my profile anonymous (hide personal information from
-                    nearby users)
-                  </label>
-                </div>
+              <div className="flex gap-4 justify-end">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditing(false);
+                    setSelectedImage(null);
+                    setImagePreview(null);
+                  }}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={updateProfileMutation.isLoading}
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition"
+                >
+                  {updateProfileMutation.isLoading ? "Saving..." : "Save Changes"}
+                </button>
               </div>
-            </div>
-
-            <div className="flex justify-center space-x-4">
-              <button
-                type="button"
-                onClick={() => {
-                  setIsEditing(false);
-                  setSelectedImage(null);
-                  setImagePreview(null);
-                }}
-                className="btn-secondary"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                disabled={updateProfileMutation.isLoading}
-                className="btn-primary"
-              >
-                {updateProfileMutation.isLoading ? "Saving..." : "Save Changes"}
-              </button>
-            </div>
-          </form>
-        )}
+            </form>
+          )}
+        </div>
       </div>
     </div>
   );
 };
+

@@ -212,38 +212,55 @@ export const FriendsPage: React.FC = () => {
 
       {/* Tabs */}
       <div className="card p-0">
-        <div className="flex border-b border-border">
-          {tabs.map((tab) => {
-            const Icon = tab.icon
-            const isActive = activeTab === tab.id
+        <div className="grid grid-cols-1 md:grid-cols-[220px_1fr]">
+          {/* Left navigation / summary */}
+          <aside className="border-r border-border p-4 space-y-4 bg-card/50">
+            <div className="space-y-2">
+              <div className="text-sm text-muted-foreground">Overview</div>
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-xs text-muted-foreground">Connections</div>
+                  <div className="text-lg font-bold text-foreground">{friends?.count || 0}</div>
+                </div>
+                <div>
+                  <div className="text-xs text-muted-foreground">Requests</div>
+                  <div className="text-lg font-bold text-foreground">{receivedRequests?.count || 0}</div>
+                </div>
+              </div>
+            </div>
 
-            return (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 flex items-center justify-center space-x-2 px-6 py-4 font-medium transition-colors ${
-                  isActive
-                    ? "text-primary border-b-2 border-primary bg-primary/5"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
-                }`}
-              >
-                <Icon className="w-5 h-5" />
-                <span>{tab.label}</span>
-                {tab.count > 0 && (
-                  <span
-                    className={`text-xs px-2 py-1 rounded-full ${
-                      isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    }`}
-                  >
-                    {tab.count}
-                  </span>
-                )}
-              </button>
-            )
-          })}
+            <div className="pt-4">
+              <nav className="space-y-2">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon
+                  const isActive = activeTab === tab.id
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => setActiveTab(tab.id)}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-md text-sm font-medium transition ${
+                        isActive
+                          ? "bg-primary/10 text-primary ring-1 ring-primary/10"
+                          : "text-muted-foreground hover:bg-muted/40"
+                      }`}
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span className="flex-1 text-left">{tab.label}</span>
+                      {tab.count > 0 && (
+                        <span className={`text-xs px-2 py-1 rounded-full ${isActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
+                          {tab.count}
+                        </span>
+                      )}
+                    </button>
+                  )
+                })}
+              </nav>
+            </div>
+          </aside>
+
+          {/* Content area */}
+          <main className="p-6">{renderContent()}</main>
         </div>
-
-        <div className="p-6">{renderContent()}</div>
       </div>
     </div>
   )

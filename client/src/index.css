@@ -49,7 +49,8 @@
     /* UI colors */
     --color-border: hsl(214.3 31.8% 91.4%);
     --color-input: hsl(214.3 31.8% 91.4%);
-    --color-background: hsl(0 0% 100%);
+    /* Slightly darker off-white background for more contrast */
+    --color-background: hsl(220 18% 96%);
     --color-foreground: hsl(222.2 84% 4.9%);
     --color-card: hsl(0 0% 100%);
     --color-card-foreground: hsl(222.2 84% 4.9%);

@@ -75,62 +75,54 @@ export const HomePage: React.FC = () => {
 
   return (
     <div className="space-y-8">
-      {/* Welcome Section */}
-      <div className="text-center space-y-4">
-        <div className="space-y-2">
-          <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground via-primary to-foreground bg-clip-text text-transparent">
-            Welcome back, {user?.name?.split(" ")[0]}!
-          </h1>
-          <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-            Connect with professionals nearby and expand your network through
-            location-based discovery.
-          </p>
+      {/* Hero - two column */}
+      <div className="bg-gradient-to-br from-primary/6 to-accent/6 rounded-2xl p-6 md:p-8 shadow-md">
+        <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-6">
+          <div className="flex-1 text-center md:text-left space-y-4">
+            <h1 className="text-3xl md:text-4xl lg:text-5xl font-extrabold text-foreground leading-tight">
+              Welcome back, {user?.name?.split(" ")[0]}!
+            </h1>
+            <p className="text-lg text-muted-foreground max-w-2xl">
+              Discover professionals nearby, manage requests, and keep your profile
+              up-to-date to grow your network.
+            </p>
+            <div className="flex items-center justify-center md:justify-start gap-3">
+              <Button asChild>
+                <Link to="/connect/nearby">Find Nearby</Link>
+              </Button>
+              <Button asChild variant="outline" className="hidden sm:inline-flex">
+                <Link to="/profile">Edit Profile</Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Compact stats on the right */}
+          <div className="w-full md:w-96 grid grid-cols-3 gap-3">
+            <div className="bg-card/60 rounded-lg p-3 text-center shadow-sm">
+              <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mb-2">
+                <Users className="w-5 h-5 text-primary-foreground" />
+              </div>
+              <div className="text-lg font-bold text-primary">{friends?.count || 0}</div>
+              <div className="text-xs text-muted-foreground">Connections</div>
+            </div>
+
+            <div className="bg-card/60 rounded-lg p-3 text-center shadow-sm">
+              <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-br from-warning to-warning/80 flex items-center justify-center mb-2">
+                <AlertCircle className="w-5 h-5 text-warning-foreground" />
+              </div>
+              <div className="text-lg font-bold text-warning">{requests?.count || 0}</div>
+              <div className="text-xs text-muted-foreground">Requests</div>
+            </div>
+
+            <div className="bg-card/60 rounded-lg p-3 text-center shadow-sm">
+              <div className="w-10 h-10 mx-auto rounded-full bg-gradient-to-br from-success to-success/80 flex items-center justify-center mb-2">
+                <TrendingUp className="w-5 h-5 text-success-foreground" />
+              </div>
+              <div className="text-lg font-bold text-success">{completionPercentage}%</div>
+              <div className="text-xs text-muted-foreground">Complete</div>
+            </div>
+          </div>
         </div>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-primary/80 rounded-full flex items-center justify-center">
-                <Users className="w-6 h-6 text-primary-foreground" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-primary mb-2">
-              {friends?.count || 0}
-            </div>
-            <div className="text-muted-foreground">Connections</div>
-          </CardContent>
-        </Card>
-
-        <Card className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-warning to-warning/80 rounded-full flex items-center justify-center">
-                <AlertCircle className="w-6 h-6 text-warning-foreground" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-warning mb-2">
-              {requests?.count || 0}
-            </div>
-            <div className="text-muted-foreground">Pending Requests</div>
-          </CardContent>
-        </Card>
-
-        <Card className="text-center group hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
-          <CardContent className="pt-6">
-            <div className="flex items-center justify-center mb-2">
-              <div className="w-12 h-12 bg-gradient-to-br from-success to-success/80 rounded-full flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-success-foreground" />
-              </div>
-            </div>
-            <div className="text-3xl font-bold text-success mb-2">
-              {completionPercentage}%
-            </div>
-            <div className="text-muted-foreground">Profile Complete</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Friend Requests Alert */}
@@ -179,37 +171,27 @@ export const HomePage: React.FC = () => {
 
       {/* Quick Actions */}
       <div>
-        <h2 className="text-2xl font-bold text-foreground mb-6">
-          Quick Actions
-        </h2>
+        <h2 className="text-2xl font-bold text-foreground mb-6">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {quickActions.map((action) => {
             const Icon = action.icon;
             return (
-              <Card
-                key={action.title}
-                className="group hover:shadow-xl transition-all duration-300 hover:-translate-y-2 overflow-hidden"
-              >
-                <Link to={action.link}>
-                  <CardContent className="p-6">
-                    <div className="flex items-start space-x-4">
-                      <div
-                        className={`w-14 h-14 bg-gradient-to-br ${action.gradient} group-hover:bg-gradient-to-br group-hover:${action.hoverGradient} rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300 group-hover:scale-110`}
-                      >
-                        <Icon className="w-7 h-7 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">
-                          {action.title}
-                        </h3>
-                        <p className="text-muted-foreground mt-1 leading-relaxed">
-                          {action.description}
-                        </p>
-                      </div>
+              <Link key={action.title} to={action.link} className="block relative group">
+
+                <div className="relative z-10 rounded-xl p-4 bg-card/60 hover:bg-card/80 transition-all duration-300 shadow-md hover:shadow-xl transform hover:-translate-y-1">
+                  <div className="flex items-start gap-4">
+                    {/* small left logo (always visible) */}
+                    <div className={`w-16 h-16 rounded-xl flex items-center justify-center shadow-lg bg-gradient-to-br ${action.gradient} z-20`}>
+                      <Icon className="w-8 h-8 text-white" />
                     </div>
-                  </CardContent>
-                </Link>
-              </Card>
+                    <div className="flex-1">
+                      <h3 className="font-semibold text-lg text-foreground group-hover:text-primary transition-colors">{action.title}</h3>
+                      <p className="text-muted-foreground mt-1 leading-relaxed">{action.description}</p>
+                    </div>
+                    <div className="hidden md:flex items-center text-sm text-muted-foreground">Go</div>
+                  </div>
+                </div>
+              </Link>
             );
           })}
         </div>
@@ -218,63 +200,51 @@ export const HomePage: React.FC = () => {
       {/* Getting Started */}
       <Card>
         <CardHeader>
-          <CardTitle>Getting Started</CardTitle>
-          <CardDescription>
-            Follow these steps to make the most of NetworkHub
-          </CardDescription>
+          <CardTitle className="font-bold">Getting Started</CardTitle>
+          <CardDescription className="font-medium">Three simple steps to start connecting</CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          <div className="space-y-4">
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-primary font-semibold text-sm">1</span>
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-medium text-foreground">
-                  Complete your profile
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Add your photo, headline, and location to help others find you
-                </p>
-                <div className="flex items-center gap-2">
-                  <Badge variant={user?.profileImage ? "default" : "secondary"}>
-                    Photo
-                  </Badge>
-                  <Badge variant={user?.headline ? "default" : "secondary"}>
-                    Headline
-                  </Badge>
-                  <Badge variant={user?.location ? "default" : "secondary"}>
-                    Location
-                  </Badge>
+        <CardContent>
+          <div className="relative">
+            {/* Vertical line */}
+            <div className="absolute left-5 top-6 bottom-6 w-px bg-border/40" />
+
+            <div className="space-y-6 pl-10">
+              {/* Step 1 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center text-white font-bold">1</div>
+                </div>
+                <div className="flex-1 bg-card/50 p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                  <h4 className="font-bold text-foreground">Complete your profile</h4>
+                  <p className="text-sm text-muted-foreground mt-1">Add a photo, headline, and location so others can find you.</p>
+                  <div className="mt-3 flex items-center gap-2">
+                    <Badge variant={user?.profileImage ? "default" : "secondary"}>Photo</Badge>
+                    <Badge variant={user?.headline ? "default" : "secondary"}>Headline</Badge>
+                    <Badge variant={user?.location ? "default" : "secondary"}>Location</Badge>
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-primary font-semibold text-sm">2</span>
+              {/* Step 2 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-green-400 to-green-500 flex items-center justify-center text-white font-bold">2</div>
+                </div>
+                <div className="flex-1 bg-card/50 p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                  <h4 className="font-bold text-foreground">Enable location</h4>
+                  <p className="text-sm text-muted-foreground mt-1">Turn on location services to discover nearby professionals.</p>
+                </div>
               </div>
-              <div className="space-y-1">
-                <h4 className="font-medium text-foreground">
-                  Enable location services
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Find and connect with professionals near you
-                </p>
-              </div>
-            </div>
 
-            <div className="flex items-start space-x-4">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary/20 to-primary/30 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-                <span className="text-primary font-semibold text-sm">3</span>
-              </div>
-              <div className="space-y-1">
-                <h4 className="font-medium text-foreground">
-                  Start connecting
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Send friend requests and build your professional network
-                </p>
+              {/* Step 3 */}
+              <div className="flex items-start gap-4">
+                <div className="flex-shrink-0">
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-purple-600 flex items-center justify-center text-white font-bold">3</div>
+                </div>
+                <div className="flex-1 bg-card/50 p-4 rounded-lg shadow-sm hover:shadow-md transition">
+                  <h4 className="font-bold text-foreground">Start connecting</h4>
+                  <p className="text-sm text-muted-foreground mt-1">Search profiles and send connection requests to build your network.</p>
+                </div>
               </div>
             </div>
           </div>
