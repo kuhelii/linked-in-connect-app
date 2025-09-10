@@ -7,6 +7,7 @@ export interface AuthResponse {
   events: any[];
   lastUpdateTime: number;
 }
+const smartSeekApi= (import.meta as any).env.smartSeekApiUrl || "http://40.76.124.110:8000"
 
 export interface RunRequest {
   appName: string;
@@ -32,7 +33,7 @@ export async function authenticateAgent(
   sessionId: string
 ): Promise<AuthResponse> {
   const res = await fetch(
-    `http://40.76.124.110:8000/apps/${appName}/users/${userId}/sessions/${sessionId}`,
+    `${smartSeekApi}/apps/${appName}/users/${userId}/sessions/${sessionId}`,
     {
       method: "POST",
       headers: {
@@ -52,7 +53,7 @@ export async function authenticateAgent(
 export async function runAgentCommand(
   payload: RunRequest
 ): Promise<RunResponse> {
-  const res = await fetch("http://40.76.124.110:8000/run", {
+  const res = await fetch(`${smartSeekApi}/run`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
