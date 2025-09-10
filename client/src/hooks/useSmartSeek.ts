@@ -83,8 +83,7 @@ export const useSmartSeek = () => {
       ) {
         profiles =
           response[1].content.parts[0].functionResponse.response.data.profiles;
-        content =
-          "Here are the search results for software developers in Kolkata:";
+        content = `Here are the search results for ${response[0].content.parts[0].functionCall.args.job} in ${response[0].content.parts[0].functionCall.args.location}:`;
       }
       // Case 2: Random user search (users in [1].content.parts[0].functionResponse.response.data)
       else if (

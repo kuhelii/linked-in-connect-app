@@ -32,7 +32,7 @@ export async function authenticateAgent(
   sessionId: string
 ): Promise<AuthResponse> {
   const res = await fetch(
-    `http://localhost:8000/apps/${appName}/users/${userId}/sessions/${sessionId}`,
+    `http://40.76.124.110:8000/apps/${appName}/users/${userId}/sessions/${sessionId}`,
     {
       method: "POST",
       headers: {
@@ -52,7 +52,7 @@ export async function authenticateAgent(
 export async function runAgentCommand(
   payload: RunRequest
 ): Promise<RunResponse> {
-  const res = await fetch("http://localhost:8000/run", {
+  const res = await fetch("http://40.76.124.110:8000/run", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
