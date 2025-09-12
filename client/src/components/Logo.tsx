@@ -25,7 +25,7 @@ export const Logo: React.FC<LogoProps> = ({ className, size = "md" }) => {
       <span className="text-[#0A2472]">Connect</span>
       <span className="relative inline-block">
         <span className="text-[#0A2472]">i</span>
-        <span className="absolute -top-1 left-1/2 -translate-x-1/2 text-red-600 leading-none" style={{ lineHeight: 0 }}>
+        <span className="absolute  left-1/2 -translate-x-1/2 text-red-600 leading-none" style={{ lineHeight: 0 }}>
           •
         </span>
       </span>
