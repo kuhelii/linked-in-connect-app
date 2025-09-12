@@ -63,7 +63,7 @@ export const LoginPage: React.FC = () => {
             Welcome back
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Sign in to your NetworkHub account
+            Sign in to your ConnectiN account
           </p>
         </div>
 

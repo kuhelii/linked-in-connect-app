@@ -71,7 +71,7 @@ export const RegisterPage: React.FC = () => {
             Create your account
           </h1>
           <p className="mt-2 text-muted-foreground">
-            Join NetworkHub and start connecting
+            Join ConnectiN and start connecting
           </p>
         </div>
 

@@ -20,7 +20,7 @@ This guide explains how to set up OAuth authentication for LinkedIn and Google, 
 2. **Create a New App**
    - Click "Create App"
    - Fill in the required information:
-     - **App name**: NetworkHub (or your preferred name)
+   - **App name**: ConnectiN (or your preferred name)
      - **LinkedIn Page**: Create a LinkedIn company page or use personal page
      - **App logo**: Upload your app logo
      - **Legal agreement**: Accept the terms
@@ -57,7 +57,7 @@ This guide explains how to set up OAuth authentication for LinkedIn and Google, 
 
 2. **Create New Project**
    - Click "Select a project" → "New Project"
-   - **Project name**: NetworkHub
+   - **Project name**: ConnectiN
    - **Organization**: Your organization (optional)
    - Click "Create"
 
@@ -72,7 +72,7 @@ This guide explains how to set up OAuth authentication for LinkedIn and Google, 
    - Navigate to "APIs & Services" → "OAuth consent screen"
    - Choose "External" user type
    - Fill in the required information:
-     - **App name**: NetworkHub
+   - **App name**: ConnectiN
      - **User support email**: Your email
      - **Developer contact email**: Your email
      - **App domain**: Your domain (optional for testing)
@@ -94,7 +94,7 @@ This guide explains how to set up OAuth authentication for LinkedIn and Google, 
 
 2. **Configure OAuth Client**
    - **Application type**: Web application
-   - **Name**: NetworkHub Web Client
+   - **Name**: ConnectiN Web Client
    - **Authorized JavaScript origins**:
      ```
      http://localhost:3000

@@ -1,6 +1,6 @@
-<h1 align="center">NetworkHub — LinkedIn-style Networking Platform</h1>
+<h1 align="center">ConnectiN — LinkedIn-style Networking Platform</h1>
 
-Connect with nearby professionals, discover people by location/role, and chat in real time. NetworkHub is a full-stack MERN application with OAuth login and an optional Google ADK-powered search agent for smart discovery.
+Connect with nearby professionals, discover people by location/role, and chat in real time. ConnectiN is a full-stack MERN application with OAuth login and an optional Google ADK-powered search agent for smart discovery.
 
 ## What you get
 

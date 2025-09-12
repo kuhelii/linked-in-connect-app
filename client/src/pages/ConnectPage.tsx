@@ -139,7 +139,7 @@ export const ConnectPage: React.FC = () => {
             <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center text-primary-foreground font-bold">2</div>
             <div>
               <h3 className="font-semibold text-foreground">Discover</h3>
-              <p className="text-sm text-muted-foreground">Browse LinkedIn profiles and NetworkHub users in your area.</p>
+              <p className="text-sm text-muted-foreground">Browse LinkedIn profiles and ConnectiN users in your area.</p>
             </div>
           </div>
           <div className="flex items-start gap-4">

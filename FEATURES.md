@@ -12,7 +12,7 @@
   - Access tokens with automatic refresh
   - Secure session management
   - Password hashing with bcrypt
-# NetworkHub — Feature Deep Dive (All Implemented)
+# ConnectiN — Feature Deep Dive (All Implemented)
 
 We didn’t just build another networking app—we tuned a full-stack machine for finding the right people, fast. Here’s what ships today, battle‑ready.
 
@@ -103,7 +103,7 @@ Why it helps
 
 ---
 
-If you’re here to meet the right people faster, NetworkHub already does the heavy lifting. Fire it up and go make something happen.
+If you’re here to meet the right people faster, ConnectiN already does the heavy lifting. Fire it up and go make something happen.
 
    cd client && npm run dev
    \`\`\`

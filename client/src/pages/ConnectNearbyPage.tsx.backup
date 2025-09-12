@@ -57,7 +57,7 @@ export const ConnectNearbyPage: React.FC = () => {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold text-foreground">Find Nearby Users</h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Discover NetworkHub users in your area and expand your professional network.
+            Discover ConnectiN users in your area and expand your professional network.
           </p>
         </div>
 
