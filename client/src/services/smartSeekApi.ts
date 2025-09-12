@@ -8,7 +8,8 @@ export interface AuthResponse {
   lastUpdateTime: number;
 }
 const smartSeekApi =
-  (import.meta as any).env.smartSeekApiUrl || "http://localhost:8000";
+  (import.meta as any).env.SMARTSEEK_API_URL ||
+  "https://linked-in-connect-app-x8aw.onrender.com";
 
 export interface RunRequest {
   appName: string;
