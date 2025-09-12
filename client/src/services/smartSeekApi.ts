@@ -7,7 +7,8 @@ export interface AuthResponse {
   events: any[];
   lastUpdateTime: number;
 }
-const smartSeekApi= (import.meta as any).env.smartSeekApiUrl || "http://40.76.124.110:8000"
+const smartSeekApi =
+  (import.meta as any).env.smartSeekApiUrl || "http://localhost:8000";
 
 export interface RunRequest {
   appName: string;
