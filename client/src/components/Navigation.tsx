@@ -13,6 +13,7 @@ import { useReceivedRequests } from "../hooks/useFriends";
 import { removeTokens, getUser } from "../utils/auth";
 import toast from "react-hot-toast";
 import { useState, useRef, useEffect } from "react";
+import Logo from "./Logo";
 import {
   ChatBubbleLeftRightIcon,
   SparklesIcon,
@@ -69,20 +70,8 @@ export const Navigation: React.FC = () => {
       <div className="container mx-auto px-4 max-w-7xl">
         <div className="flex items-center justify-between py-3">
          {/* Logo */}
-<Link to="/" className="flex items-center rounded-full bg-white py-2 px-4 shadow-md space-x-2 group" title="Connect IN">
-  {/* Text Logo */}
-  <div className="text-2xl font-extrabold flex items-center">
-    <span className="text-[#0A2472]">Connect</span>
-    <span className="relative inline-block">
-      <span className="text-[#0A2472]">i</span>
-      <span className="absolute -top-2 left-1/2 -translate-x-1/2 text-red-600 text-xl leading-none">
-        •
-      </span>
-    </span>
-    <span className="bg-gradient-to-r from-[#1E3A8A] to-[#6366F1] bg-clip-text text-transparent">
-      N
-    </span>
-  </div>
+<Link to="/" className="flex items-center rounded-full bg-white py-2 px-4 shadow-md space-x-2 group" title="ConnectiN">
+  <Logo size="md" />
 </Link>
 
 

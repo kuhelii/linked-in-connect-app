@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import api from "../services/api";
 import { setTokens, setUser } from "../utils/auth";
 import { Eye, EyeOff, Loader2, Mail, Lock, User } from "lucide-react";
+import Logo from "../components/Logo";
 
 interface RegisterForm {
   name: string;
@@ -63,10 +64,8 @@ export const RegisterPage: React.FC = () => {
       <div className="w-full max-w-lg">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary/80 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
-            <span className="text-primary-foreground font-bold text-2xl">
-              N
-            </span>
+          <div className="mb-6 flex justify-center">
+            <Logo size="lg" className="justify-center" />
           </div>
           <h1 className="text-3xl font-bold bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
             Create your account
@@ -76,7 +75,7 @@ export const RegisterPage: React.FC = () => {
           </p>
         </div>
 
-        <div className="shadow-xl bg-card/50 backdrop-blur rounded-lg border-border border-border">
+  <div className="shadow-xl bg-card/50 backdrop-blur rounded-lg border border-border">
           <div className="pt-6 space-y-6 p-6">
             {/* OAuth Buttons */}
             <div className="space-y-3">
@@ -96,7 +95,7 @@ export const RegisterPage: React.FC = () => {
 
               <button
                 onClick={() => handleOAuthLogin("google")}
-                className="w-full h-12 bg-card hover:bg-muted px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center border-border border-border"
+                className="w-full h-12 bg-card hover:bg-muted px-4 py-2 rounded-md font-medium transition-colors duration-200 flex items-center justify-center border border-border"
               >
                 <svg className="w-5 h-5 mr-3" viewBox="0 0 24 24">
                   <path
@@ -150,7 +149,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type="text"
                     placeholder="Enter your full name"
-                    className="pl-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-10 h-12 w-full flex rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
                 {errors.name && (
@@ -177,7 +176,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type="email"
                     placeholder="Enter your email"
-                    className="pl-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-10 h-12 w-full flex rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                 </div>
                 {errors.email && (
@@ -204,7 +203,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type={showPassword ? "text" : "password"}
                     placeholder="Create a password"
-                    className="pl-10 pr-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-10 pr-10 h-12 w-full flex rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <button
                     type="button"
@@ -246,7 +245,7 @@ export const RegisterPage: React.FC = () => {
                     })}
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="Confirm your password"
-                    className="pl-10 pr-10 h-12 w-full flex rounded-md border-border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                    className="pl-10 pr-10 h-12 w-full flex rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                   />
                   <button
                     type="button"
